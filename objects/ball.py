@@ -12,7 +12,7 @@ class Ball(MovingObject):
     def __init__(self):
         self.__released = False
 
-        pos = config.INI_BALL_POSITION
+        pos = config.BALL_POSITION
         rep = util.str_to_array(BALL)
         rep[0, 1] = ''
         color = util.form_color_array(rep.shape, (Fore.RED, Back.LIGHTBLACK_EX, Style.BRIGHT))
@@ -20,9 +20,16 @@ class Ball(MovingObject):
 
         super().__init__(position=pos, rep=rep, color=color, velocity=velocity)
 
+    def activate(self):
+        self.__released = True
+
+    def is_active(self):
+        return self.__released
+
     def move(self, **kwargs):
-        self.reflect_from_wall()
-        self.add_position(self.get_velocity())
+        if self.__released:
+            self.reflect_from_wall()
+            self.add_position(self.get_velocity())
 
     def reflect_from_wall(self):
         """
@@ -35,7 +42,7 @@ class Ball(MovingObject):
 
         if _y == 0:
             _velocity[0] *= -1
-        if _x == 0 or _x == _max_width - _w:
+        if _x == 0 or _x == _max_width - _w - 1:
             _velocity[1] *= -1
 
         self.set_velocity(_velocity)

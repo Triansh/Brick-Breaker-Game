@@ -1,5 +1,7 @@
 import numpy as np
 
+import config
+
 
 class GameObject:
 
@@ -14,14 +16,23 @@ class GameObject:
         self.__rep = rep
         self.__color = color
 
+    def fix_position(self):
+        _y, _x = self.get_position()
+        _h, _w = self.get_shape()
+        minx = min(max(0, _x), config.SCREEN_WIDTH - 1 - _w)
+        miny = min(max(0, _y), config.SCREEN_HEIGHT - _h)
+        self.__position = np.array([miny, minx])
+
     def get_position(self):
         return self.__position
 
     def set_position(self, position):
         self.__position = position
+        self.fix_position()
 
     def add_position(self, position):
         self.__position += position
+        self.fix_position()
 
     def get_shape(self):
         return self.__rep.shape

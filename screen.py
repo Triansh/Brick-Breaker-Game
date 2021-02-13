@@ -23,6 +23,7 @@ class Screen:
         self.display = np.full((self.height, self.width), " ")
         val = np.empty((), dtype=object)
         val[()] = (config.FG_COLOR, config.BG_COLOR, config.STYLE)
+
         self.color = np.full((self.height, self.width), val, dtype=object)
 
     def draw(self, obj: GameObject):
@@ -34,7 +35,7 @@ class Screen:
 
         display, color = obj.get_rep()
 
-        minx = min(max(0, _x), self.width -1 - _w)
+        minx = min(max(0, _x), self.width - 1 - _w)
         miny = min(max(0, _y), self.height - _h)
 
         # print(minx, miny, obj.__class__.__name__, obj.get_position(), obj.get_shape())

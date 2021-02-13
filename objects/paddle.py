@@ -1,5 +1,5 @@
 import numpy as np
-from colorama import Fore, Style
+from colorama import Fore, Style, Back
 
 import config
 from utils import util
@@ -10,12 +10,16 @@ from objects.gameObject import MovingObject
 class Paddle(MovingObject):
 
     def __init__(self):
+        position = config.PADDLE_POSITION
         rep = util.str_to_array(PADDLE)
-        _h, _w = rep.shape
-        position = np.array([config.SCREEN_HEIGHT - _h - 3, (config.SCREEN_WIDTH - _w) // 2])
-        color = util.form_color_array(rep.shape, (Fore.RED, Style.BRIGHT))
+        color = util.form_color_array(rep.shape, (Fore.LIGHTRED_EX, Style.BRIGHT))
         velocity = config.PADDLE_VELOCITY
         super().__init__(position, rep, color, velocity)
+
+    def get_center(self):
+        _pos = self.get_position()
+        _shape = self.get_shape()
+        return _pos + np.array([0, _shape[1] // 2])
 
     def move(self, **kwargs):
         _ch = kwargs['ch'].lower()
