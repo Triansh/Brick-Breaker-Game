@@ -1,48 +1,49 @@
+import numpy as np
 from colorama import Fore, Back, Style
 
 import config
 from utils import util
-from art import BALL
 
 from objects.gameObject import MovingObject
 
 
 class Ball(MovingObject):
 
-    def __init__(self):
-        self.__released = False
+    def __init__(self, position, emoji, shape, direction=np.array([1, -1]), sp_factor=0):
+        """
+        sp_factor is the multiplying factor for direction to increase the velocity of ball
+        """
+        self.__sp_factor = sp_factor
+        super().__init__(position=position, emoji=emoji, shape=shape, direction=direction)
 
-        pos = config.BALL_POSITION
-        rep = util.str_to_array(BALL)
-        rep[0, 1] = ''
-        color = util.form_color_array(rep.shape, (Fore.RED, Back.LIGHTBLACK_EX, Style.BRIGHT))
-        velocity = config.BALL_VELOCITY
+    def get_sp_factor(self):
+        return self.__sp_factor
 
-        super().__init__(position=pos, rep=rep, color=color, velocity=velocity)
+    def set_sp_factor(self, sp_factor):
+        self.__sp_factor = sp_factor
 
-    def activate(self):
-        self.__released = True
+    def release(self):
+        if self.__sp_factor == 0:
+            self.__sp_factor = 1
 
-    def is_active(self):
-        return self.__released
+    def is_released(self):
+        return self.__sp_factor != 0
 
     def move(self, **kwargs):
-        if self.__released:
-            self.reflect_from_wall()
-            self.add_position(self.get_velocity())
+        self.handle_wall_reflection()
+        self.add_position(self.get_direction() * self.__sp_factor)
 
-    def reflect_from_wall(self):
+    def handle_wall_reflection(self):
         """
-        This function account for all collisions with walls
+        This function accounts for all collisions with walls
         """
-        _y, _x = self.get_position()
+        _x, _y = self.get_position()
         _h, _w = self.get_shape()
-        _velocity = self.get_velocity()
-        _max_width = config.SCREEN_WIDTH
+        _direction = self.get_direction()
 
         if _y == 0:
-            _velocity[0] *= -1
-        if _x == 0 or _x == _max_width - _w - 1:
-            _velocity[1] *= -1
+            _direction[1] *= -1
+        if _x == 0 or _x == config.SCREEN_WIDTH - _w:
+            _direction[0] *= -1
 
-        self.set_velocity(_velocity)
+        self.set_direction(_direction)

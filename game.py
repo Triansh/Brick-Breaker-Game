@@ -12,69 +12,81 @@ from screen import Screen
 
 class Game:
     def __init__(self):
+        self.__run = True
         self.__screen = Screen()
-        self.ball = Ball()
-        self.paddle = Paddle()
+        self.__balls = [Ball(config.BALL_POSITION, "🏐", (1, 2))]
+        self.__paddle = Paddle(config.PADDLE_POSITION, "🧱", config.PADDLE_SHAPE,
+                               direction=np.array([2, 0]))
+        self.__keys = KBHit()
 
         util.hide_cursor()
+        self.reset_ball_positions()
 
     def start(self):
-        kb_inp = KBHit()
 
-        while True:
+        while self.__run:
             time.sleep(config.DELAY)
-
-            if kb_inp.kb_hit() is True:
-                if self.manage_key_hits(kb_inp):
-                    break
-            else:
-                kb_inp.clear()
-
+            self.manage_key_hits()
             self.refresh()
 
             self.check_for_collisions()
-            self.ball.move()
-            self.__screen.draw(self.ball)
-            self.__screen.draw(self.paddle)
+            self.move_objects()
+            self.draw_objects()
 
             self.__screen.show()
+
+    def draw_objects(self):
+        for ball in self.__balls:
+            self.__screen.draw(ball)
+        self.__screen.draw(self.__paddle)
+
+    def move_objects(self):
+        for ball in self.__balls:
+            ball.move()
+
 
     def refresh(self):
         self.__screen.clear()
         util.position_cursor()
 
     def move_paddle(self, ch):
-        self.paddle.move(ch=ch)
-        if not self.ball.is_active():
-            self.ball.set_position(self.paddle.get_center() + np.array([-1, 0]))
+        self.__paddle.move(ch=ch)
+        self.reset_ball_positions()
 
-    def manage_key_hits(self, kb_inp):
+    def reset_ball_positions(self):
+        for ball in self.__balls:
+            if not ball.is_released():
+                ball.set_position(self.__paddle.get_center() + np.array([0, -1]))
 
-        _ch = kb_inp.get_ch()
-        kb_inp.clear()
-        if _ch == 'q':
-            return True
-        elif _ch == 'a' or _ch == 'd':
-            self.move_paddle(_ch)
-        elif _ch == ' ':
-            self.ball.activate()
-        return False
+    def manage_key_hits(self):
+
+        if self.__keys.kb_hit() is True:
+            _ch = self.__keys.get_ch()
+            self.__keys.clear()
+            if _ch == 'q':
+                self.__run = False
+            elif _ch == 'a' or _ch == 'd':
+                self.move_paddle(_ch)
+            elif _ch == ' ':
+                for ball in self.__balls:
+                    ball.release()
+        else:
+            self.__keys.clear()
 
     def check_for_collisions(self):
-        _yb, _xb = self.ball.get_position()
-        _yp, _xp = self.paddle.get_position()
-        _yc, _xc = self.paddle.get_center()
+        for ball in self.__balls:
+            _xb, _yb = ball.get_position()
+            _hb, _wb = ball.get_shape()
+            _vx, _vy = ball.get_direction()
 
-        _hb, _wb = self.paddle.get_shape()
-        _hp, _wp = self.paddle.get_shape()
+            _xp, _yp = self.__paddle.get_position()
+            _hp, _wp = self.__paddle.get_shape()
+            _xc, _yc = self.__paddle.get_center()
 
-        _vy, _vx = self.ball.get_velocity()
-
-        if _yb  == _yp and _xb + _wb >= _xp and _xb <= _xp + _wp:
-            _vy *= -1
-            extra_vel = int(abs(_xc - _xb) * config.VELOCITY_INCREASE_FACTOR)
-            _vx += (-1 if _xc - _xb >= 0 else 1) * extra_vel
-            self.ball.set_velocity(np.array([_vy, _vx]))
+            if _yb == _yp and _xb + _wb >= _xp and _xb <= _xp + _wp:
+                _vy *= -1
+                _vx += (-1 if _xc - _xb >= 0 else 1) * self.__paddle.get_extra_velocity(_xb)
+                ball.set_direction(np.array([_vx, _vy]))
 
     def __del__(self):
         print("BYE")

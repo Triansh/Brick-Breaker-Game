@@ -5,23 +5,22 @@ import config
 
 class GameObject:
 
-    def __init__(self, position, rep: np.array, color):
+    def __init__(self, position, emoji, shape: np.array):
         """
-        Args:
-            position (np.array) : [y, x]
-            rep (np.array) :
-            color (tuple) : (Fore, Back, Style)
+        position: np.array -> [x, y]
+        rep : Emoji -> in form of string
+        shape : tuple -> (height, width) or (row, col)
         """
         self.__position = position
-        self.__rep = rep
-        self.__color = color
+        self.__emoji = emoji
+        self.__shape = shape
 
     def fix_position(self):
-        _y, _x = self.get_position()
+        _x, _y = self.get_position()
         _h, _w = self.get_shape()
-        minx = min(max(0, _x), config.SCREEN_WIDTH - 1 - _w)
-        miny = min(max(0, _y), config.SCREEN_HEIGHT - _h)
-        self.__position = np.array([miny, minx])
+        _fix_x = min(max(0, _x), config.SCREEN_WIDTH - _w)
+        _fix_y = min(max(0, _y), config.SCREEN_HEIGHT - _h)
+        self.__position = np.array([_fix_x, _fix_y])
 
     def get_position(self):
         return self.__position
@@ -35,34 +34,37 @@ class GameObject:
         self.fix_position()
 
     def get_shape(self):
-        return self.__rep.shape
+        return self.__shape
+
+    def get_emoji(self):
+        return self.__emoji
 
     def get_rep(self):
-        return self.__rep, self.__color
-
-    def set_color(self, color):
-        self.__color = color
+        _block = np.full(self.__shape, ' ')
+        for i in range(self.__shape[0]):
+            for j in range(self.__shape[1]):
+                _block[i, j] = self.__emoji if j % 2 == 0 else ''
+        return _block
 
 
 class MovingObject(GameObject):
-    def __init__(self, position, rep, color, velocity):
+    def __init__(self, position, emoji, shape, direction):
         """
-        Args:
-            velocity (np.array): [y,x]
+        direction is the amount by which the ball moves in [x, y] direction
         """
-        self.__velocity = velocity
-        super().__init__(position=position, rep=rep, color=color)
+        self.__direction = direction
+        super().__init__(position=position, emoji=emoji, shape=shape)
 
-    def get_velocity(self):
-        return self.__velocity
+    def get_direction(self):
+        return self.__direction
 
-    def set_velocity(self, velocity):
-        self.__velocity = velocity
+    def set_direction(self, direction):
+        self.__direction = direction
 
     def move(self, **kwargs):
         """
         This is a general function for all objects which move.
-        Can be overrided by next child classes accordingly
+        Can be override by next child classes accordingly
         """
 
 

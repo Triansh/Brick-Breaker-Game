@@ -3,26 +3,27 @@ from colorama import Fore, Style, Back
 
 import config
 from utils import util
-from art import PADDLE
 from objects.gameObject import MovingObject
 
 
 class Paddle(MovingObject):
 
-    def __init__(self):
-        position = config.PADDLE_POSITION
-        rep = util.str_to_array(PADDLE)
-        color = util.form_color_array(rep.shape, (Fore.LIGHTRED_EX, Style.BRIGHT))
-        velocity = config.PADDLE_VELOCITY
-        super().__init__(position, rep, color, velocity)
+    def __init__(self, position, emoji, shape, direction=np.array([2, 0])):
+        super().__init__(position=position, emoji=emoji, shape=shape, direction=direction)
 
     def get_center(self):
         _pos = self.get_position()
         _shape = self.get_shape()
-        return _pos + np.array([0, _shape[1] // 2])
+        return _pos + np.array([(_shape[1] - 2) // 2, 0])
 
     def move(self, **kwargs):
         _ch = kwargs['ch'].lower()
-        _velocity = self.get_velocity()
+        _direction = self.get_direction()
+        self.add_position(_direction if _ch == 'd' else -_direction)
 
-        self.add_position(_velocity if _ch == 'd' else -_velocity)
+    def get_extra_velocity(self, xb):
+        """
+        This function tells how much extra velocity must be added to ball when it hits the paddle
+        """
+        _pcx, _pcy = self.get_center()
+        return int(6 * abs(_pcx - xb) / self.get_shape()[1])
