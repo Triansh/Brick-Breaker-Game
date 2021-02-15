@@ -32,6 +32,7 @@ class Screen:
         """
         This will print the given object on screen
         """
+        # print(obj.__class__.__name__, obj.get_position())
         _x, _y = obj.get_position()
         _h, _w = obj.get_shape()
         display = obj.get_rep()

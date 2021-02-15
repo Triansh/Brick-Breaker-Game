@@ -15,7 +15,7 @@ from screen import Screen
 class Game:
     def __init__(self):
         self.__counter = 1
-        self.__lives = 3
+        self.__lives = 7
         self.__run = True
         self.__screen = Screen()
         self.__balls = [Ball(id=0, position=config.BALL_POSITION, emoji="🏐", shape=(1, 2),
@@ -27,7 +27,7 @@ class Game:
         self.__keys = KBHit()
 
         util.hide_cursor()
-        self.reset_ball_positions()
+        # self.reset_ball_positions()
 
     def start(self):
 
@@ -42,17 +42,18 @@ class Game:
             self.move_objects()
 
             self.check_life_lost()
+            t1 = time.time()
 
             self.draw_objects()
 
             self.__screen.show()
 
-            t = time.time() - t
+            t2 = time.time() - t1
 
             if len(self.__balls):
                 print(f"position : {self.__balls[0].get_position()}")
                 print(f"direction : {self.__balls[0].get_direction()}")
-            print(f"time : {t}")
+            print(f"time :  {t1 - t} , {t2}")
             print(f"lives : {self.__lives}")
             print(f"bricks : {len(self.__brickWall.get_all_bricks())}")
 
@@ -132,7 +133,7 @@ class Game:
         for ball in self.__balls:
             if ball.is_released():
                 self.detect_paddle_collisions(ball)
-                # self.detect_brick_collisions(ball)
+                self.detect_brick_collisions(ball)
 
     def detect_paddle_collisions(self, ball):
         _xb, _yb = ball.get_position()
@@ -143,7 +144,7 @@ class Game:
         _hp, _wp = self.__paddle.get_shape()
         _xc, _yc = self.__paddle.get_center()
 
-        if _yp <= _yb <= _yp + _hp and _xp <= _xb <= _xp + _wp:
+        if _yp <= _yb <= _yp + _hp and _xp <= _xb + _wb and _xb <= _xp + _wp:
             _vy *= -1
             _vx += (-1 if _xc - _xb >= 0 else 1) * self.__paddle.get_extra_velocity(_xb)
             ball.set_direction(np.array([_vx, _vy]))

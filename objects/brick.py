@@ -8,13 +8,13 @@ from objects.gameObject import GameObject
 
 class Brick(GameObject):
 
-    def __init__(self, id, position, level, shape=(1, 2)):
+    def __init__(self, id, position, level, shape=(1, 2), emoji=None):
         self.__bricks = config.BRICKS
         self.__id = id
         self.__level = level
 
-        emoji = self.__bricks[self.__level - 1]  # TODO
-        super().__init__(position=position, emoji=emoji, shape=shape)
+        emoj = self.__bricks[self.__level - 1] if emoji is None else emoji  # TODO
+        super().__init__(position=position, emoji=emoj, shape=shape)
 
     def get_id(self):
         return self.__id
@@ -44,3 +44,12 @@ class Brick(GameObject):
         self.set_level(self.__level - 1)
 
         return np.array([_dx, _dy])
+
+
+class ExplosiveBrick(Brick):
+
+    def __init__(self, id, position):
+        super().__init__(id=id, position=position, level=1, shape=(2, 4), emoji="🟧")
+
+    def set_level(self, level):
+        self.__level = 0 if level < 0 else level

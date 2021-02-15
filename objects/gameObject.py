@@ -14,6 +14,7 @@ class GameObject:
         self.__position = position
         self.__emoji = emoji
         self.__shape = shape
+        self.make_rep()
 
     def fix_position(self):
         _x, _y = self.get_position()
@@ -41,13 +42,17 @@ class GameObject:
 
     def set_emoji(self, emoji):
         self.__emoji = emoji
+        self.make_rep()
 
-    def get_rep(self):
+    def make_rep(self):
         _block = np.full(self.__shape, ' ')
         for i in range(self.__shape[0]):
             for j in range(self.__shape[1]):
                 _block[i, j] = self.__emoji if j % 2 == 0 else ''
-        return _block
+        self.__rep = _block
+
+    def get_rep(self):
+        return self.__rep
 
 
 class MovingObject(GameObject):
@@ -66,8 +71,10 @@ class MovingObject(GameObject):
         self.fix_direction()
 
     def fix_direction(self):
-        self.__direction[0] = max(min(self.__direction[0], config.MAX_VELOCITY), -config.MAX_VELOCITY)
-        self.__direction[1] = max(min(self.__direction[1], config.MAX_VELOCITY), -config.MAX_VELOCITY)
+        self.__direction[0] = max(min(self.__direction[0], config.MAX_VELOCITY),
+                                  -config.MAX_VELOCITY)
+        self.__direction[1] = max(min(self.__direction[1], config.MAX_VELOCITY),
+                                  -config.MAX_VELOCITY)
 
     def get_center(self):
         _pos = self.get_position()

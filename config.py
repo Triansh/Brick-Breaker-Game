@@ -19,7 +19,7 @@ BG_COLOR = Back.BLACK
 FG_COLOR = Fore.GREEN
 STYLE = Style.NORMAL
 
-DELAY = 1 / 25
+DELAY = 1 / 30
 
 if DEBUG:
     PADDLE_SHAPE = (2, (SCREEN_WIDTH - 1))
@@ -32,14 +32,15 @@ else:
 
 BALL_POSITION = np.array([20, 20])
 # BALL_POSITION = PADDLE_POSITION + np.array([-1, _w // 2])
-BALL_DIRECTION = np.array([2, -1])
+BALL_DIRECTION = np.array([1, -1])
 
-WALL_POSITION = np.array([8, 5])
-WALL_SHAPE = (11, 20)
+WALL_POSITION = np.array([6, 5])
+WALL_SHAPE = (11, SCREEN_WIDTH // 8)
 
 MAX_VELOCITY = 4
 
 BRICKS = ["🟨", "🟩",
           "🟦",
-          # "🟥", "🟪"
+          "🟥",
+          # "🟪"
           ]
