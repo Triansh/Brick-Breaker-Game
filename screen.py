@@ -36,6 +36,9 @@ class Screen:
         _h, _w = obj.get_shape()
         display = obj.get_rep()
 
+        _x = int(_x)
+        _y = int(_y)
+
         self.display[_y:_y + _h, _x:_x + _w] = display
 
     def show(self):
@@ -48,7 +51,6 @@ class Screen:
         for j in range(self.width + 2):
             finalOutput += "".join(_barrier_color) + 'X'
         finalOutput += "\n"
-
         for i in range(self.height):
             finalOutput += "".join(_barrier_color) + 'X'
             for j in range(self.width):
@@ -57,4 +59,3 @@ class Screen:
             finalOutput += "\n"
 
         sys.stdout.write(finalOutput + col.Style.RESET_ALL)
-

@@ -9,10 +9,11 @@ from objects.gameObject import MovingObject
 
 class Ball(MovingObject):
 
-    def __init__(self, position, emoji, shape, direction=np.array([1, -1]), sp_factor=0):
+    def __init__(self, id, position, emoji, shape, direction=config.BALL_DIRECTION, sp_factor=0):
         """
         sp_factor is the multiplying factor for direction to increase the velocity of ball
         """
+        self.__id = id
         self.__sp_factor = sp_factor
         super().__init__(position=position, emoji=emoji, shape=shape, direction=direction)
 
@@ -41,9 +42,9 @@ class Ball(MovingObject):
         _h, _w = self.get_shape()
         _direction = self.get_direction()
 
-        if _y == 0:
+        if _y <= 0:
             _direction[1] *= -1
-        if _x == 0 or _x == config.SCREEN_WIDTH - _w:
+        if _x <= 0 or _x >= config.SCREEN_WIDTH - _w:
             _direction[0] *= -1
 
         self.set_direction(_direction)
