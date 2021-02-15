@@ -27,7 +27,7 @@ class Game:
         self.__keys = KBHit()
 
         util.hide_cursor()
-        # self.reset_ball_positions()
+        self.reset_ball_positions()
 
     def start(self):
 
@@ -42,22 +42,22 @@ class Game:
             self.move_objects()
 
             self.check_life_lost()
-            t1 = time.time()
 
             self.draw_objects()
+            # t1 = time.time()
 
             self.__screen.show()
 
-            t2 = time.time() - t1
+            t2 = time.time() - t
 
             if len(self.__balls):
                 print(f"position : {self.__balls[0].get_position()}")
                 print(f"direction : {self.__balls[0].get_direction()}")
-            print(f"time :  {t1 - t} , {t2}")
+            print(f"time :   {t2}")
             print(f"lives : {self.__lives}")
             print(f"bricks : {len(self.__brickWall.get_all_bricks())}")
 
-            time.sleep(max(config.DELAY - t, 0))
+            time.sleep(max(config.DELAY - t2, 0))
 
     def draw_objects(self):
         for brick in self.__brickWall.get_all_bricks():
@@ -193,7 +193,7 @@ class Game:
                 ball.get_direction())
 
             _final_dir[index] = _dir
-            # print(c_brick.get_id())
+            c_brick.set_level(c_brick.get_level() - 1)
             if c_brick.get_level() == 0:
                 self.__brickWall.destroy_brick(c_brick)
         ball.set_direction(_final_dir[0])

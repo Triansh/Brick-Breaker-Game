@@ -17,16 +17,12 @@ class Screen:
         Constructor for the screen.
         """
         self.display: np.array
-        self.color: np.array
         self.width = config.SCREEN_WIDTH
         self.height = config.SCREEN_HEIGHT
         self.clear()
 
     def clear(self):
         self.display = np.full((self.height, self.width), " ")
-        val = np.empty((), dtype=object)
-        val[()] = (config.FG_COLOR, config.BG_COLOR, config.STYLE)
-        self.color = np.full((self.height, self.width), val, dtype=object)
 
     def draw(self, obj: GameObject):
         """
@@ -48,15 +44,25 @@ class Screen:
         """
         _barrier_color = (Fore.LIGHTGREEN_EX, config.BG_COLOR, Style.NORMAL)
 
+        _w = self.width
+        for index, a in enumerate(self.display):
+            a = list(a)
+            empty, space = a.count(''), a.count(' ')
+            extra = _w - (empty * 2) - space
+            if extra:
+                try:
+                    last_index = len(a) - 1 - a[::-1].index(' ')
+                    self.display[index, last_index] = ''
+                except Exception:
+                    continue
+
         finalOutput = ""
-        for j in range(self.width + 2):
-            finalOutput += "".join(_barrier_color) + 'X'
-        finalOutput += "\n"
-        for i in range(self.height):
-            finalOutput += "".join(_barrier_color) + 'X'
-            for j in range(self.width):
-                finalOutput += "".join(self.color[i][j]) + self.display[i][j]
-            finalOutput += "".join(_barrier_color) + 'X'
-            finalOutput += "\n"
+        finalOutput += "".join((config.BG_COLOR, config.STYLE))
+        finalOutput += (("".join(_barrier_color) + 'X') * (_w + 2)) + "\n" \
+                       + "\n".join((
+            ("".join(_barrier_color) + 'X' + "".join(x) + "".join(_barrier_color) + 'X')
+            for x in self.display
+        ))
+        finalOutput += '\n'
 
         sys.stdout.write(finalOutput + col.Style.RESET_ALL)

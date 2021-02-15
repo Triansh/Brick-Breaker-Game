@@ -79,7 +79,7 @@ class MovingObject(GameObject):
     def get_center(self):
         _pos = self.get_position()
         _shape = self.get_shape()
-        return _pos + np.array([_shape[1], _shape[0]]) / 2
+        return _pos + np.array([_shape[1] - 1, _shape[0] - 1]) / 2
 
     def move(self, **kwargs):
         """

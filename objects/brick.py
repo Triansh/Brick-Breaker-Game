@@ -26,6 +26,7 @@ class Brick(GameObject):
         self.__level = 0 if level < 0 else level
         self.set_emoji(self.__bricks[0 if self.__level - 1 < 0 else (self.__level - 1)])
 
+
     def reflect_obj(self, pos, direction):
         _x, _y = pos
         _dx, _dy = direction
@@ -41,7 +42,6 @@ class Brick(GameObject):
             _dx *= -1
             _dy *= -1
 
-        self.set_level(self.__level - 1)
 
         return np.array([_dx, _dy])
 
@@ -51,5 +51,5 @@ class ExplosiveBrick(Brick):
     def __init__(self, id, position):
         super().__init__(id=id, position=position, level=1, shape=(2, 4), emoji="🟧")
 
-    def set_level(self, level):
-        self.__level = 0 if level < 0 else level
+    # def set_level(self, level):
+    #     self.__level = 0 if level < 0 else level

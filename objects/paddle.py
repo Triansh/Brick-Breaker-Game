@@ -21,4 +21,4 @@ class Paddle(MovingObject):
         This function tells how much extra velocity must be added to ball when it hits the paddle
         """
         _pcx, _pcy = self.get_center()
-        return int(6 * abs(int(_pcx) - xb) / self.get_shape()[1])
+        return int(8 * abs(int(_pcx) - xb) / self.get_shape()[1])
