@@ -1,4 +1,9 @@
+from random import randrange
+
 import numpy as np
+
+import config
+from objects.powerup import ExpandPaddle, ShrinkPaddle
 
 
 def position_cursor():
@@ -16,15 +21,11 @@ def show_cursor():
     print("\x1b[?25h")
 
 
-def get_theta(base, perp):
-    pi = np.pi
-    theta = pi/2 if base == 0 else abs(np.arctan(perp / base))
-    return theta
-    # if perp >= 0 and base >= 0:
-    #     return theta
-    # elif perp > 0 and base < 0:
-    #     return pi - theta
-    # elif perp < 0 and base > 0:
-    #     return - theta
-    # elif perp <= 0 and base <= 0:
-    #     return pi + theta
+def seconds_to_frames(sec):
+    frame_rate = 1 / config.DELAY
+    return round(sec * frame_rate)
+
+
+def get_power_up(id, position):
+    return ExpandPaddle(id=id, position=position) if randrange(2) == 1 else ShrinkPaddle(id=id,
+                                                                                         position=position)

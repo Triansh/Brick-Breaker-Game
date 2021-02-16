@@ -17,13 +17,6 @@ class GameObject:
         self.__rep: np.array
         self.make_rep()
 
-    def fix_position(self):
-        _x, _y = self.get_position()
-        _h, _w = self.get_shape()
-        _fix_x = min(max(0, _x), config.SCREEN_WIDTH - _w)
-        _fix_y = min(max(0, _y), config.SCREEN_HEIGHT - _h)
-        self.__position = np.array([_fix_x, _fix_y], dtype=float)
-
     def get_position(self):
         return self.__position
 
@@ -35,8 +28,24 @@ class GameObject:
         self.__position += position
         self.fix_position()
 
+    def fix_position(self):
+        _x, _y = self.get_position()
+        _h, _w = self.get_shape()
+        _fix_x = min(max(0, _x), config.SCREEN_WIDTH - _w)
+        _fix_y = min(max(0, _y), config.SCREEN_HEIGHT - _h)
+        self.__position = np.array([_fix_x, _fix_y], dtype=float)
+
+    def get_center(self):
+        _h, _w = self.__shape
+        return self.__position + np.array([_w - 1, _h - 1]) / 2
+
     def get_shape(self):
         return self.__shape
+
+    def set_shape(self, shape):
+        self.__shape = shape
+        self.fix_position()
+        self.make_rep()
 
     def get_emoji(self):
         return self.__emoji
@@ -76,11 +85,6 @@ class MovingObject(GameObject):
                                   -config.MAX_VELOCITY)
         self.__direction[1] = max(min(self.__direction[1], config.MAX_VELOCITY),
                                   -config.MAX_VELOCITY)
-
-    def get_center(self):
-        _pos = self.get_position()
-        _shape = self.get_shape()
-        return _pos + np.array([_shape[1] - 1, _shape[0] - 1]) / 2
 
     def move(self, **kwargs):
         """
