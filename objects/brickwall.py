@@ -68,7 +68,7 @@ class BrickWall:
         _h, _w = brick.get_shape()
         return [(_x, _y), (_x, _y + _h), (_x + _w, _y), (_x + _w, _y + _h)]
 
-    def destroy_brick(self, brick: Brick): #should be a bfs with showing chain reaction
+    def destroy_brick(self, brick: Brick): # TODO should be a bfs with showing chain reaction
         if brick.__class__.__name__ == "ExplosiveBrick":
 
             ex_coord = self.get_coords(brick)

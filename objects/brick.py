@@ -46,7 +46,7 @@ class Brick(GameObject):
         return np.array([_dx, _dy])
 
 
-class ExplosiveBrick(Brick):
+class ExplosiveBrick(Brick): #TODO
 
     def __init__(self, id, position):
         super().__init__(id=id, position=position, level=1, shape=(2, 4), emoji="🟧")

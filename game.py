@@ -39,25 +39,24 @@ class Game:
 
             self.detect_collisions()
 
-            self.move_objects()
+            # self.move_objects()
 
             self.check_life_lost()
 
             self.draw_objects()
-            # t1 = time.time()
 
             self.__screen.show()
 
-            t2 = time.time() - t
+            t = time.time() - t
 
             if len(self.__balls):
                 print(f"position : {self.__balls[0].get_position()}")
                 print(f"direction : {self.__balls[0].get_direction()}")
-            print(f"time :   {t2}")
+            print(f"time :   {t}")
             print(f"lives : {self.__lives}")
             print(f"bricks : {len(self.__brickWall.get_all_bricks())}")
 
-            time.sleep(max(config.DELAY - t2, 0))
+            time.sleep(max(config.DELAY - t, 0))
 
     def draw_objects(self):
         for brick in self.__brickWall.get_all_bricks():
@@ -68,9 +67,8 @@ class Game:
 
         # self.__screen.draw(self.__brickWall)
 
-    def move_objects(self):
-        for ball in self.__balls:
-            ball.move()
+    # def move_objects(self):
+    #     for ball in self.__balls:
 
     def refresh(self):
         self.__screen.clear()
@@ -133,7 +131,8 @@ class Game:
         for ball in self.__balls:
             if ball.is_released():
                 self.detect_paddle_collisions(ball)
-                self.detect_brick_collisions(ball)
+                if not self.detect_brick_collisions(ball):
+                    ball.move()
 
     def detect_paddle_collisions(self, ball):
         _xb, _yb = ball.get_position()
@@ -151,52 +150,48 @@ class Game:
 
     def detect_brick_collisions(self, ball):
 
-        _radius = 0.1
+        _dir = ball.get_direction()
+        _bc = ball.get_center()
+        _radius = ball.get_shape()  # minor axis(h) , major axis(w)
+        _radius = [_radius[0] / 2, _radius[1] / 2]
 
-        _a, _b = ball.get_direction()
-        f = int(abs(_a) + abs(_b) + 1)
-        steps = (1000, 10)
-        c_bricks = []
+        f = int(abs(_dir[0]) + abs(_dir[1]) + 1)
 
-        for brick in self.__brickWall.get_all_bricks():
+        for idx in range(f + 1):
 
-            curr_pos = ball.get_center()
-            _x, _y = brick.get_position()
-            _h, _w = brick.get_shape()
+            curr_pos = _bc + (_dir * idx / f)
+            c_bricks = []
 
-            for idx in range(f + 1):
-                curr_pos += np.array([_a / f, _b / f])
+            for brick in self.__brickWall.get_all_bricks():
+                _x, _y = brick.get_position()
+                _h, _w = brick.get_shape()
 
-                if ((_x <= curr_pos[0] <= _x + _w) or (_x <= curr_pos[0] + _radius <= _x + _w) or
-                    (_x <= curr_pos[0] - _radius <= _x + _w)) and \
-                        ((_y <= curr_pos[1] <= _y + _h) or (_y <= curr_pos[1] + _radius <= _y + _h)
-                         or (_y <= curr_pos[1] - _radius <= _y + _h)):
+                if ((_x <= curr_pos[0] <= _x + _w) or (_x <= curr_pos[0] + _radius[1] <= _x + _w) or
+                    (_x <= curr_pos[0] - _radius[1] <= _x + _w)) and \
+                        ((_y <= curr_pos[1] <= _y + _h) or (
+                                _y <= curr_pos[1] + _radius[0] <= _y + _h)
+                         or (_y <= curr_pos[1] - _radius[0] <= _y + _h)):
+                    c_bricks.append(brick)
 
-                    if idx < steps[0]:
-                        c_bricks = [brick]
-                        steps = (idx, f)
-                        break
-                    elif idx == steps[0]:
-                        c_bricks.append(brick)
-                        break
+            if (size := len(c_bricks)) > 0:
+                _final_dir = np.zeros((size, 2))
 
-        if not len(c_bricks):
-            return
+                _prev_pos = curr_pos - (_dir / f)
 
-        _final_dir = np.zeros((len(c_bricks), 2))
-        _xx, tot = steps[0] - 1, steps[1]
+                for index, brick in enumerate(c_bricks):
 
-        for index, c_brick in enumerate(c_bricks):
+                    _next_dir = brick.reflect_obj(_prev_pos, _dir)
 
-            _dir = c_brick.reflect_obj(
-                ball.get_center() + np.array([_xx * _a / tot, _xx * _b / tot]),
-                ball.get_direction())
+                    _final_dir[index] = _next_dir
+                    brick.set_level(brick.get_level() - 1)
+                    if brick.get_level() == 0:
+                        self.__brickWall.destroy_brick(brick)
 
-            _final_dir[index] = _dir
-            c_brick.set_level(c_brick.get_level() - 1)
-            if c_brick.get_level() == 0:
-                self.__brickWall.destroy_brick(c_brick)
-        ball.set_direction(_final_dir[0])
+                ball.set_direction(_final_dir[0])
+                # ball.set_direction(np.mean(_final_dir, axis=0))
+                # ball.set_position(_prev_pos.astype(int))  # TODO
+                return False
+        return False
 
     def __del__(self):
         print("BYE")

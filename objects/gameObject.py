@@ -14,6 +14,7 @@ class GameObject:
         self.__position = position
         self.__emoji = emoji
         self.__shape = shape
+        self.__rep: np.array
         self.make_rep()
 
     def fix_position(self):
