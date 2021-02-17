@@ -5,6 +5,7 @@ import sys
 
 import config
 from objects.gameObject import GameObject
+from utils import util
 
 
 class Screen:
@@ -38,11 +39,10 @@ class Screen:
 
         self.display[_y:_y + _h, _x:_x + _w] = display
 
-    def show(self):
+    def show(self, frames, lives, score):
         """
         Displaying the screen.
         """
-        _barrier_color = (Fore.LIGHTGREEN_EX, config.BG_COLOR, Style.NORMAL)
 
         _w = self.width
         for index, a in enumerate(self.display):
@@ -56,13 +56,30 @@ class Screen:
                 except Exception:
                     continue
 
+        _barrier_style = "".join((Fore.LIGHTGREEN_EX, config.BG_COLOR, Style.BRIGHT))
+        _style = "".join((Fore.WHITE, Style.BRIGHT))
+
+        more_things = [
+            (_barrier_style + 'X') * _w,
+            _style + f"  ⏰ Time  : {util.frames_to_time(frames)}",
+            _style + f"  💕 Lives : {lives}",
+            _style + f"  🌟 Score : {score}",
+        ]
+
+        more_string = "\n".join(
+            (_barrier_style + 'X' +
+             x + ' ' * (_w - len(x)) +
+             _barrier_style + 'X')
+            for x in more_things)
+
         finalOutput = ""
         finalOutput += "".join((config.BG_COLOR, config.STYLE))
-        finalOutput += (("".join(_barrier_color) + 'X') * (_w + 2)) + "\n" \
-                       + "\n".join((
-            ("".join(_barrier_color) + 'X' + "".join(x) + "".join(_barrier_color) + 'X')
-            for x in self.display
-        ))
+
+        finalOutput += more_string + "\n" + \
+                       "\n".join((
+                           (_barrier_style + 'X' + "".join(x) + _barrier_style + 'X')
+                           for x in self.display
+                       ))
         finalOutput += '\n'
 
         sys.stdout.write(finalOutput + col.Style.RESET_ALL)

@@ -6,15 +6,19 @@ import config
 from objects.gameObject import GameObject
 
 
+#           "🟦",
+#           # "🟥",
+#           # "🟪"
+#           ]
+
 class Brick(GameObject):
 
-    def __init__(self, id, position, level, shape=(1, 2), emoji=None):
-        self.__bricks = config.BRICKS
+    def __init__(self, id, position, level, shape=(1, 2)):
+        # self.__bricks = config.BRICKS
         self.__id = id
         self.__level = level
 
-        emoj = self.__bricks[self.__level - 1] if emoji is None else emoji  # TODO
-        super().__init__(position=position, emoji=emoj, shape=shape)
+        super().__init__(position=position, emoji="🚫", shape=shape)
 
     def get_id(self):
         return self.__id
@@ -24,8 +28,17 @@ class Brick(GameObject):
 
     def set_level(self, level):
         self.__level = 0 if level < 0 else level
-        self.set_emoji(self.__bricks[0 if self.__level - 1 < 0 else (self.__level - 1)])
+        self.set_emoji()
 
+    def set_emoji(self, emoji="🚫"):
+
+        if self.__level == 3:
+            emoji = "🟦"
+        elif self.__level == 2:
+            emoji = "🟩"
+        else:
+            emoji = "🟨"
+        super().set_emoji(emoji=emoji)
 
     def reflect_obj(self, pos, direction):
         _x, _y = pos
@@ -42,11 +55,10 @@ class Brick(GameObject):
             _dx *= -1
             _dy *= -1
 
-
         return np.array([_dx, _dy])
 
 
-class ExplosiveBrick(Brick): #TODO
+class ExplosiveBrick(Brick):  # TODO
 
     def __init__(self, id, position):
         super().__init__(id=id, position=position, level=1, shape=(2, 4), emoji="🟧")

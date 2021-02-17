@@ -28,8 +28,8 @@ class Paddle(MovingObject):
 
     def update_shape_decider(self, decider):
         _d = self.__shape_decider
-        self.__shape_decider = min(max(_d + decider, -1), 1)
+        self.__shape_decider = decider
         self.set_shape(self.__paddle_shapes[self.__shape_decider])
 
-    def get_shape_decider(self): #TODO
+    def get_shape_decider(self):  # TODO
         return self.__shape_decider

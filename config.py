@@ -6,8 +6,6 @@ import os
 import numpy as np
 from colorama import Fore, Back, Style
 
-from utils import util
-
 DEBUG = False
 
 _sc_height, _sc_width = [int(x) for x in os.popen("stty size", "r").read().split()]
@@ -19,7 +17,7 @@ BG_COLOR = Back.BLACK
 FG_COLOR = Fore.GREEN
 STYLE = Style.NORMAL
 
-DELAY = 1 / 15
+DELAY = 1 / 20
 
 if DEBUG:
     EXPAND_PADDLE_SHAPE = SHRINK_PADDLE_SHAPE = PADDLE_SHAPE = (2, (SCREEN_WIDTH - 1))
@@ -36,51 +34,17 @@ PADDLE_SHAPES = [PADDLE_SHAPE, EXPAND_PADDLE_SHAPE, SHRINK_PADDLE_SHAPE]
 
 BALL_POSITION = np.array([20, 20])
 # BALL_POSITION = PADDLE_POSITION + np.array([-1, _w // 2])
-BALL_DIRECTION = np.array([2, -1])
+BALL_DIRECTION = np.array([0, -1])
 
-WALL_POSITION = np.array([6, 5])
+WALL_POSITION = np.array([4, 5])
 WALL_SHAPE = (11, SCREEN_WIDTH // 8)
 
-MAX_VELOCITY = 8
+MAX_VELOCITY = 3
 
-BRICKS = ["🟨", "🟩",
-          "🟦",
-          # "🟥",
-          # "🟪"
-          ]
-
-POWERUP_DIRECTION = np.array([0, 2])
+# BRICKS
+POWERUP_DIRECTION = np.array([0, 1])
 POWERUP_SHAPE = (1, 2)
 
-POWER_UP_LIST = {
+BRICK_TYPES = 3
 
-    "ExpandPaddle": {
-        'duration': util.seconds_to_frames(20),
-        'time': 0,
-    },
-
-    "ShrinkPaddle": {
-        'duration': util.seconds_to_frames(20),
-        'time': 0,
-    },
-
-    "BallMultiplier": {
-        'duration': util.seconds_to_frames(4),
-        'time': 0,
-    },
-
-    "ThruBall ": {
-        'duration': util.seconds_to_frames(4),
-        'time': 0,
-    },
-
-    "FastBall": {
-        'duration': util.seconds_to_frames(4),
-        'time': 0,
-    },
-
-    "PaddleGrab": {
-        'duration': util.seconds_to_frames(4),
-        'time': 0,
-    }
-}
+# x = ['💥', '⚡⚡', '🥊', '⚜', '🔥', '💕', '⏪', '⏩', '💠', '🏈', '🌀', ]

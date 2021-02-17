@@ -21,11 +21,19 @@ def show_cursor():
     print("\x1b[?25h")
 
 
-def seconds_to_frames(sec):
+def time_to_frames(sec):
     frame_rate = 1 / config.DELAY
     return round(sec * frame_rate)
 
 
-def get_power_up(id, position):
-    return ExpandPaddle(id=id, position=position) if randrange(2) == 1 else ShrinkPaddle(id=id,
-                                                                                         position=position)
+def format_num(num):
+    return '{}'.format(num if num > 9 else ('0' + f'{num}'))
+
+
+def frames_to_time(frames):
+    s = int(frames * config.DELAY) % 60
+    m = int((frames * config.DELAY) // 60) % 60
+    h = int((frames * config.DELAY) // 3600) % 24
+    return f"{format_num(h)}:{format_num(m)}:{format_num(s)}"
+
+

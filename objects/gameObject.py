@@ -12,10 +12,10 @@ class GameObject:
         shape : tuple -> (height, width) or (row, col)
         """
         self.__position = position
-        self.__emoji = emoji
         self.__shape = shape
         self.__rep: np.array
-        self.make_rep()
+        self.__emoji: str
+        self.set_emoji(emoji=emoji)
 
     def get_position(self):
         return self.__position
