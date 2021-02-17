@@ -20,8 +20,7 @@ class Game:
         self.__counter = 1
         self.__run = True
         self.__screen = Screen()
-        self.__balls = [Ball(id=0, position=config.BALL_POSITION, emoji="🏐", shape=(1, 2),
-                             direction=config.BALL_DIRECTION)]
+        self.__balls = [Ball(id=0, position=config.BALL_POSITION)]
         self.__paddle = Paddle(position=config.PADDLE_POSITION, emoji="🧱",
                                shape=config.PADDLE_SHAPE)
         self.__brick_wall = BrickWall(position=config.WALL_POSITION, shape=config.WALL_SHAPE)
@@ -136,9 +135,7 @@ class Game:
             if self.__lives == 0:
                 self.__run = False
                 return
-            self.__balls.append(
-                Ball(id=self.__counter, position=config.BALL_POSITION, emoji="🏐", shape=(1, 2),
-                     direction=config.BALL_DIRECTION))
+            self.__balls.append(Ball(id=self.__counter, position=config.BALL_POSITION))
             self.__counter += 1
             self.reset_ball_positions()
 
@@ -182,7 +179,9 @@ class Game:
         for power_up in self.__power_ups:
             if self.check_paddle_collisions(power_up):
                 name = power_up.__class__.__name__
-                if name == "ShrinkPaddle":
+                if name == "BallMultiplier":
+                    self.multiply_balls()
+                elif name == "ShrinkPaddle":
                     self.__powerup_handler.activate_power_ups(name, paddle=self.__paddle,
                                                               expand=False)
                 else:
@@ -191,6 +190,19 @@ class Game:
                 to_remove.append(power_up)
 
         self.__power_ups = [p for p in self.__power_ups if p not in to_remove]
+
+    def multiply_balls(self):
+        to_add = []
+        for ball in self.__balls:
+            if ball.is_released():
+                if len(self.__balls) + len(to_add) < config.MAXIMUM_BALLS:
+                    to_add.append(
+                        Ball(self.__counter, ball.get_position(), direction=-ball.get_direction(),
+                             sp_factor=1))
+                    self.__counter += 1
+                else:
+                    break
+        self.__balls = self.__balls + to_add
 
     def update_powerup_time(self):
         pass
@@ -204,10 +216,10 @@ class Game:
 
         f = int(abs(_dir[0]) + abs(_dir[1]) + 1)
 
+        c_bricks = []
         for idx in range(f + 1):
 
             curr_pos = _bc + (_dir * idx / f)
-            c_bricks = []
 
             for brick in self.__brick_wall.get_all_bricks():
                 _x, _y = brick.get_position()
@@ -220,7 +232,7 @@ class Game:
                          or (_y <= curr_pos[1] - _radius[0] <= _y + _h)):
                     c_bricks.append(brick)
 
-            if (size := len(c_bricks)) > 0:
+            if (size := len(c_bricks)) > 0 and not ball.is_thru():
                 _final_dir = np.zeros((size, 2))
 
                 _prev_pos = curr_pos - (_dir / f)
@@ -228,20 +240,27 @@ class Game:
                 for index, brick in enumerate(c_bricks):
 
                     _next_dir = brick.reflect_obj(_prev_pos, _dir)
-
                     _final_dir[index] = _next_dir
                     brick.set_level(brick.get_level() - 1)
                     if brick.get_level() == 0:
-                        _pos = brick.get_position()
-                        self.__brick_wall.destroy_brick(brick)
-                        new_power_up = self.__powerup_handler.create_power_up(_pos)
-                        self.__power_ups.append(new_power_up)
+                        self.destroy_and_check_for_powerup(brick)
 
                 ball.set_direction(_final_dir[0])
                 # ball.set_direction(np.mean(_final_dir, axis=0))
                 # ball.set_position(_prev_pos.astype(int))  # TODO
                 return False
+
+        for brick in c_bricks:
+            self.destroy_and_check_for_powerup(brick)
+
         return False
+
+    def destroy_and_check_for_powerup(self, brick):
+        _pos = brick.get_position()
+        self.__brick_wall.destroy_brick(brick)
+        new_power_up = self.__powerup_handler.create_power_up(_pos)
+        if new_power_up is not None:
+            self.__power_ups.append(new_power_up)
 
     def __del__(self):
         print("BYE")

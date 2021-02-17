@@ -5,7 +5,7 @@ from objects.powerup import BallMultiplier, ThruBall, FastBall, PaddleGrab, Expa
     ShrinkPaddle
 
 from utils.powerUpActivity import PaddleSizeActivity, FastBallActivity, BallCollisionActivity, \
-    PaddleGrabActivity, BallMultiplyActivity
+    PaddleGrabActivity
 
 
 class PowerUpHandler:
@@ -17,7 +17,6 @@ class PowerUpHandler:
             BallCollisionActivity(),
             FastBallActivity(),
             PaddleGrabActivity(),
-            BallMultiplyActivity(),
         ]
 
     @staticmethod
@@ -25,36 +24,40 @@ class PowerUpHandler:
 
         if name in ["ExpandPaddle", "ShrinkPaddle"]:
             return 0
-        elif name == "ThruBall ":
+        elif name == "ThruBall":
             return 1
         elif name == "FastBall":
             return 2
         elif name == "PaddleGrab":
             return 3
-        elif name == "BallMultiplier":
-            return 4
+        return None
 
     def create_power_up(self, position):
 
-        _type = randrange(3)
-        # print(_type)
-        # sys.exit()
+        prob = randrange(100)
+        if prob > 30:
+            return None
+
+        _type = randrange(5, 6)
         self.__counter += 1
         if _type == 5:
             return BallMultiplier(self.__counter, position)
-        elif _type == 4:
+        elif _type == 3:
             return ThruBall(self.__counter, position)
         elif _type == 2:
             return FastBall(self.__counter, position)
-        elif _type == 3:
+        elif _type == 4:
             return PaddleGrab(self.__counter, position)
         elif _type == 1:
             return ExpandPaddle(self.__counter, position)
         elif _type == 0:
             return ShrinkPaddle(self.__counter, position)
+        else:
+            return None
 
     def activate_power_ups(self, name, **kwargs):
         index = self.map(name)
+        # print(index, name)
         self.__power_ups_activity[index].activate(**kwargs)
 
     def update_power_ups(self, **kwargs):

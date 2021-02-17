@@ -69,18 +69,21 @@ class BrickWall:
         return [(_x, _y), (_x, _y + _h), (_x + _w, _y), (_x + _w, _y + _h)]
 
     def destroy_brick(self, brick: Brick):  # TODO should be a bfs with showing chain reaction
-        if brick.__class__.__name__ == "ExplosiveBrick":
-
-            ex_coord = self.get_coords(brick)
+        # if brick.__class__.__name__ == "ExplosiveBrick":
+        #
+        #     ex_coord = self.get_coords(brick)
+        #     self.__bricks.remove(brick)
+        #     # time.sleep(.01)
+        #     for br in self.__bricks:
+        #         br_coord = self.get_coords(br)
+        #         if any(cd in ex_coord for cd in br_coord):
+        #             self.destroy_brick(br)
+        # else:
+        try: #TODO check
             self.__bricks.remove(brick)
-            # time.sleep(.01)
-            for br in self.__bricks:
-                br_coord = self.get_coords(br)
-                if any(cd in ex_coord for cd in br_coord):
-                    self.destroy_brick(br)
-        else:
-            self.__bricks.remove(brick)
+        except Exception:
             return
+        return
 
     def make_structure(self):
         _shape = (2, 4)

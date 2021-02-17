@@ -1,3 +1,5 @@
+from random import randrange
+
 import numpy as np
 from colorama import Fore, Back, Style
 
@@ -9,12 +11,15 @@ from objects.gameObject import MovingObject
 
 class Ball(MovingObject):
 
-    def __init__(self, id, position, emoji, shape, direction=config.BALL_DIRECTION, sp_factor=0):
+    def __init__(self, id, position, direction=config.BALL_DIRECTION, sp_factor=0):
         """
         sp_factor is the multiplying factor for direction to increase the velocity of ball
         """
         self.__id = id
         self.__sp_factor = sp_factor
+        self.__thru = False
+        emoji = config.BALLS[randrange(len(config.BALLS))]
+        shape = (1, 2)
         super().__init__(position=position, emoji=emoji, shape=shape, direction=direction)
 
     def get_sp_factor(self):
@@ -29,6 +34,12 @@ class Ball(MovingObject):
 
     def is_released(self):
         return self.__sp_factor != 0
+
+    def is_thru(self):
+        return self.__thru
+
+    def set_thru(self, thru: bool):
+        self.__thru = thru
 
     def move(self, **kwargs):
         self.handle_wall_reflection()

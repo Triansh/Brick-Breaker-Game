@@ -58,12 +58,17 @@ class BallCollisionActivity(PowerUpActivity):
     def __init__(self):
         super().__init__()
 
+    def activate(self, **kwargs):
+        balls = kwargs['balls']
+        for ball in balls:
+            ball.set_thru(True)
+
+    def deactivate(self, **kwargs):
+        balls = kwargs['balls']
+        for ball in balls:
+            ball.set_thru(False)
+
 
 class PaddleGrabActivity(PowerUpActivity):
-    def __init__(self):
-        super().__init__()
-
-
-class BallMultiplyActivity(PowerUpActivity):
     def __init__(self):
         super().__init__()
