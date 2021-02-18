@@ -5,16 +5,9 @@ import numpy as np
 import config
 from objects.gameObject import GameObject
 
-
-#           "🟦",
-#           # "🟥",
-#           # "🟪"
-#           ]
-
 class Brick(GameObject):
 
     def __init__(self, id, position, level, shape=(1, 2)):
-        # self.__bricks = config.BRICKS
         self.__id = id
         self.__level = level
 
@@ -30,7 +23,16 @@ class Brick(GameObject):
         self.__level = 0 if level < 0 else level
         self.set_emoji()
 
+    def get_coords(self):
+        _x, _y = self.get_position()
+        _h, _w = self.get_shape()
+        return [(_x, _y), (_x, _y + _h), (_x + _w, _y), (_x + _w, _y + _h)]
+
     def set_emoji(self, emoji="🚫"):
+
+        if not self.__class__.__name__ == "Brick":
+            super().set_emoji(emoji=emoji)
+            return
 
         if self.__level == 3:
             emoji = "🟦"
@@ -40,7 +42,7 @@ class Brick(GameObject):
             emoji = "🟩"
         elif self.__level == 1:
             emoji = "🟨"
-        super().set_emoji(emoji=emoji)
+        super().set_emoji(emoji)
 
     def reflect_obj(self, pos, direction):
         _x, _y = pos
@@ -62,11 +64,11 @@ class Brick(GameObject):
 
 class ExplosiveBrick(Brick):  # TODO
 
-    def __init__(self, id, position):
-        super().__init__(id=id, position=position, level=1, shape=(2, 4))
+    def __init__(self, id, position, shape):
+        super().__init__(id=id, position=position, level=1, shape=shape)
 
-    # def set_level(self, level):
-    #     self.__level = 0 if level < 0 else level
+    def set_emoji(self, emoji="🚫"):
+        super().set_emoji('🟥')
 
 
 class UnBreakableBrick(Brick):

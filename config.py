@@ -17,7 +17,7 @@ BG_COLOR = Back.BLACK
 FG_COLOR = Fore.GREEN
 STYLE = Style.NORMAL
 
-DELAY = 1 / 15
+DELAY = 1 / 20
 
 if DEBUG:
     EXPAND_PADDLE_SHAPE = SHRINK_PADDLE_SHAPE = PADDLE_SHAPE = (2, (SCREEN_WIDTH - 1))
@@ -48,8 +48,6 @@ POWERUP_SHAPE = (1, 2)
 BRICK_TYPES = 4
 
 MAXIMUM_BALLS = 4
-
-# x = ['💥', '⚡⚡', '🥊', '⚜', '🔥', '💕', '⏪', '⏩', '💠',  '🌀', ]
 
 BALLS = ['🏐', '🏉', '🥎', '⚾', '🏈']
 

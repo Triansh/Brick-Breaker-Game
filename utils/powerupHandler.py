@@ -38,7 +38,7 @@ class PowerUpHandler:
         if prob > 30:
             return None
 
-        _type = randrange(3,4)
+        _type = randrange(6)
         self.__counter += 1
         if _type == 5:
             return BallMultiplier(self.__counter, position)
@@ -62,3 +62,7 @@ class PowerUpHandler:
     def update_power_ups(self, **kwargs):
         for activity in self.__power_ups_activity:
             activity.update(**kwargs)
+
+    def deactivate_power_ups(self, **kwargs):
+        for activity in self.__power_ups_activity:
+            activity.deactivate(**kwargs)

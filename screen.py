@@ -36,7 +36,7 @@ class Screen:
         _x, _y = int(_x), int(_y)
         self.__display[_y:_y + _h, _x:_x + _w] = display
 
-    def show(self, frames, lives, score, bricks):
+    def show(self, frames, lives, score, bricks=0):
         """
         Displaying the screen.
         """

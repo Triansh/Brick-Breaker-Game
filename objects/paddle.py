@@ -16,9 +16,8 @@ class Paddle(MovingObject):
         super().__init__(position=position, emoji=emoji, shape=shape, direction=_dir)
 
     def move(self, **kwargs):
-        _ch = kwargs['ch'].lower()
         _direction = self.get_direction()
-        self.add_position(_direction if _ch == 'd' else -_direction)
+        self.add_position(_direction if kwargs['ch'] == 'd' else -_direction)
 
     def get_extra_velocity(self, xb):
         """

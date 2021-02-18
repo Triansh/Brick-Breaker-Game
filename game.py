@@ -24,7 +24,7 @@ class Game:
         self.__paddle = Paddle(position=config.PADDLE_POSITION, emoji="🧱",
                                shape=config.PADDLE_SHAPE)
         self.__brick_wall = BrickWall(position=config.WALL_POSITION, shape=config.WALL_SHAPE)
-        self.__total_bricks = len(self.__brick_wall.get_all_bricks())
+        self.__total_bricks = self.__brick_wall.get_count_bricks()
         self.__power_ups = []
         self.__powerup_handler = PowerUpHandler()
         self.__keys = KBHit()
@@ -44,6 +44,7 @@ class Game:
             self.refresh()
             self.manage_key_hits()
 
+            self.__brick_wall.explode_bricks(self.__frames_count)
             self.detect_collisions()
 
             self.check_life_lost()
@@ -57,22 +58,18 @@ class Game:
             t3 = time.time() - t
 
             self.__screen.show(self.__frames_count, self.__lives, self.__score,
-                               len(self.__brick_wall.get_all_bricks()))
+                               self.__brick_wall.get_count_bricks())
 
             t4 = time.time() - t - t3
 
-            if len(self.__balls):
-                pass
-                # print( f"position : {self.__balls[0].get_position()}, direction : {self.__balls[0].get_direction()}")
-                # print(f"power ups : {self.__powerups_list}")
             print(f"time :  {t3}, {t4}, {t3 + t4}")
-            print(f"bricks : {len(self.__brick_wall.get_all_bricks())}")
             self.__frames_count += 1
             time.sleep(max(config.DELAY - (time.time() - t), 0))
 
     def update_score(self):
-        self.__score = (self.__total_bricks - len(
-            self.__brick_wall.get_all_bricks())) * config.SCORE_FACTOR
+        pass
+        self.__score = (self.__total_bricks -
+                        self.__brick_wall.get_count_bricks()) * config.SCORE_FACTOR
 
     def draw_objects(self):
         for brick in self.__brick_wall.get_all_bricks():
@@ -112,7 +109,7 @@ class Game:
     def manage_key_hits(self):
 
         if self.__keys.kb_hit() is True:
-            _ch = self.__keys.get_ch()
+            _ch = self.__keys.get_ch().lower()
             if _ch == 'q':
                 self.__run = False
             elif _ch == 'a' or _ch == 'd':
@@ -142,6 +139,7 @@ class Game:
 
         if len(self.__balls) == 0:
             self.__lives -= 1
+            self.__powerup_handler.deactivate_power_ups(paddle=self.__paddle, balls=self.__balls)
             if self.__lives == 0:
                 self.__run = False
                 return
@@ -219,7 +217,7 @@ class Game:
                 if len(self.__balls) + len(to_add) < config.MAXIMUM_BALLS:
                     to_add.append(
                         Ball(self.__counter, ball.get_position(), direction=-ball.get_direction(),
-                             release=True, sp_factor=1))
+                             release=True, sp_factor=ball.get_sp_factor()))
                     self.__counter += 1
                 else:
                     break
@@ -278,7 +276,7 @@ class Game:
 
     def destroy_and_check_for_powerup(self, brick):
         _pos = brick.get_position()
-        self.__brick_wall.destroy_brick(brick)
+        self.__brick_wall.destroy_brick(brick, self.__frames_count)
         new_power_up = self.__powerup_handler.create_power_up(_pos)
         if new_power_up is not None:
             self.__power_ups.append(new_power_up)
