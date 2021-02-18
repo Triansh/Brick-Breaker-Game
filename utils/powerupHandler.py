@@ -4,7 +4,7 @@ from random import randrange
 from objects.powerup import BallMultiplier, ThruBall, FastBall, PaddleGrab, ExpandPaddle, \
     ShrinkPaddle
 
-from utils.powerUpActivity import PaddleSizeActivity, FastBallActivity, BallCollisionActivity, \
+from utils.powerUpActivity import PaddleSizeActivity, FastBallActivity, ThruBallActivity, \
     PaddleGrabActivity
 
 
@@ -14,7 +14,7 @@ class PowerUpHandler:
         self.__counter = 0
         self.__power_ups_activity = [
             PaddleSizeActivity(),
-            BallCollisionActivity(),
+            ThruBallActivity(),
             FastBallActivity(),
             PaddleGrabActivity(),
         ]
@@ -38,7 +38,7 @@ class PowerUpHandler:
         if prob > 30:
             return None
 
-        _type = randrange(4, 5)
+        _type = randrange(3,4)
         self.__counter += 1
         if _type == 5:
             return BallMultiplier(self.__counter, position)
@@ -57,7 +57,6 @@ class PowerUpHandler:
 
     def activate_power_ups(self, name, **kwargs):
         index = self.map(name)
-        # print(index, name)
         self.__power_ups_activity[index].activate(**kwargs)
 
     def update_power_ups(self, **kwargs):

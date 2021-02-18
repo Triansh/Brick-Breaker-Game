@@ -11,13 +11,13 @@ from objects.gameObject import MovingObject
 
 class Ball(MovingObject):
 
-    def __init__(self, id, position, direction=config.BALL_DIRECTION, sp_factor=1):
+    def __init__(self, id, position, direction=config.BALL_DIRECTION, release=False, sp_factor=1):
         """
         sp_factor is the multiplying factor for direction to increase the velocity of ball
         """
         self.__id = id
         self.__sp_factor = sp_factor
-        self.__release = False
+        self.__release = release
         self.__thru = False
         emoji = config.BALLS[randrange(len(config.BALLS))]
         shape = (1, 2)
@@ -38,7 +38,7 @@ class Ball(MovingObject):
     def is_thru(self):
         return self.__thru
 
-    def set_thru(self, thru: bool):
+    def set_thru(self, thru=True):
         self.__thru = thru
 
     def move(self, **kwargs):

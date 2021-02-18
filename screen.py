@@ -17,68 +17,71 @@ class Screen:
         """
         Constructor for the screen.
         """
-        self.display: np.array
-        self.width = config.SCREEN_WIDTH
-        self.height = config.SCREEN_HEIGHT
+        self.__display: np.array
+        self.__width = config.SCREEN_WIDTH
+        self.__height = config.SCREEN_HEIGHT
         self.clear()
 
     def clear(self):
-        self.display = np.full((self.height, self.width), " ")
+        self.__display = np.full((self.__height, self.__width), " ")
 
     def draw(self, obj: GameObject):
         """
         This will print the given object on screen
         """
-        # print(obj.__class__.__name__, obj.get_position())
         _x, _y = obj.get_position()
         _h, _w = obj.get_shape()
         display = obj.get_rep()
 
-        _x = int(_x)
-        _y = int(_y)
+        _x, _y = int(_x), int(_y)
+        self.__display[_y:_y + _h, _x:_x + _w] = display
 
-        self.display[_y:_y + _h, _x:_x + _w] = display
-
-    def show(self, frames, lives, score):
+    def show(self, frames, lives, score, bricks):
         """
         Displaying the screen.
         """
 
-        _w = self.width
-        for index, a in enumerate(self.display):
+        _w = self.__width
+        for index, a in enumerate(self.__display):
             a = list(a)
             empty, space = a.count(''), a.count(' ')
             extra = _w - (empty * 2) - space
-            for ix in  range(extra//2):
+            if extra:
                 try:
                     last_index = len(a) - 1 - a[::-1].index(' ')
-                    self.display[index, last_index] = ''
+                    self.__display[index, last_index] = ''
                 except Exception:
                     continue
 
-        _barrier_style = "".join((Fore.LIGHTGREEN_EX, config.BG_COLOR, Style.BRIGHT))
-        _style = "".join((Fore.WHITE, Style.BRIGHT))
+        _barrier_style = (Fore.LIGHTGREEN_EX, config.BG_COLOR, Style.BRIGHT)
+        _style = (Fore.WHITE, Style.BRIGHT)
 
-        more_things = [
-            (_barrier_style + 'X') * _w,
-            _style + f"  ⏰ Time  : {util.frames_to_time(frames)}",
-            _style + f"  💕 Lives : {lives}",
-            _style + f"  🌟 Score : {score}",
-        ]
+        single_x = "".join(_barrier_style) + 'X'
+        single_sp = "".join(_style) + ' '
+        item_1 = [
+            "".join(_style) + f"  💕 Lives : {lives}",
+            "".join(_style) + f"⏰ Time  : {util.frames_to_time(frames)}  "]
+        item_2 = [
+            "".join(_style) + f"  🌟 Score : {score}",
+            "".join(_style) + f"🧱 Bricks: {bricks}  "]
 
-        more_string = "\n".join(
-            (_barrier_style + 'X' +
-             x + ' ' * (_w - len(x)) +
-             _barrier_style + 'X')
-            for x in more_things)
+        row = ['' for x in range(4)]
+        row[0] = row[3] = single_x * (self.__width + 2)
+        row[1] = single_x + item_1[0] + single_sp * (
+                16 + self.__width - len(item_1[0]) - len(item_1[1])) + item_1[1] + single_x
+        row[2] = single_x + item_2[0] + single_sp * (
+                16 + self.__width - len(item_2[0]) - len(item_2[1])) + item_2[1] + single_x
+
+        top_bar = "\n".join(x for x in row)
 
         finalOutput = ""
         finalOutput += "".join((config.BG_COLOR, config.STYLE))
 
-        finalOutput += more_string + "\n" + \
+        finalOutput += top_bar + "\n" + \
                        "\n".join((
-                           (_barrier_style + 'X' + "".join(x) + _barrier_style + 'X')
-                           for x in self.display
+                           ("".join(_barrier_style) + 'X' + "".join(x) + "".join(
+                               _barrier_style) + 'X')
+                           for x in self.__display
                        ))
         finalOutput += '\n'
 

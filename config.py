@@ -11,25 +11,25 @@ DEBUG = False
 _sc_height, _sc_width = [int(x) for x in os.popen("stty size", "r").read().split()]
 
 SCREEN_WIDTH = _sc_width - 7
-SCREEN_HEIGHT = _sc_height - 10
+SCREEN_HEIGHT = _sc_height -8
 
 BG_COLOR = Back.BLACK
 FG_COLOR = Fore.GREEN
 STYLE = Style.NORMAL
 
-DELAY = 1 / 20
+DELAY = 1 / 15
 
 if DEBUG:
     EXPAND_PADDLE_SHAPE = SHRINK_PADDLE_SHAPE = PADDLE_SHAPE = (2, (SCREEN_WIDTH - 1))
     PADDLE_POSITION = np.array([1, SCREEN_HEIGHT - 2 - PADDLE_SHAPE[0]])
 else:
-    EXPAND_PADDLE_SHAPE = (2, 36)
-    PADDLE_SHAPE = (2, 16)
-    SHRINK_PADDLE_SHAPE = (2, 8)
+    EXPAND_PADDLE_SHAPE = (2, 50)
+    PADDLE_SHAPE = (2, 40)
+    SHRINK_PADDLE_SHAPE = (2, 30)
     PADDLE_POSITION = np.array(
-        [(SCREEN_WIDTH - PADDLE_SHAPE[1]) // 2, SCREEN_HEIGHT - 1 - PADDLE_SHAPE[0]])
+        [(SCREEN_WIDTH - PADDLE_SHAPE[1]) // 2, SCREEN_HEIGHT -  PADDLE_SHAPE[0]])
 
-PADDLE_VELOCITY = np.array([3, 0])
+PADDLE_VELOCITY = np.array([4, 0])
 PADDLE_SHAPES = [PADDLE_SHAPE, EXPAND_PADDLE_SHAPE, SHRINK_PADDLE_SHAPE]
 
 BALL_POSITION = np.array([20, 20])
@@ -45,11 +45,11 @@ MAX_VELOCITY = 3
 POWERUP_DIRECTION = np.array([0, 1])
 POWERUP_SHAPE = (1, 2)
 
-BRICK_TYPES = 3
+BRICK_TYPES = 4
 
 MAXIMUM_BALLS = 4
 
-# x = ['💥', '⚡⚡', '🥊', '⚜', '🔥', '💕', '⏪', '⏩', '💠', '🏈', '🌀', ]
+# x = ['💥', '⚡⚡', '🥊', '⚜', '🔥', '💕', '⏪', '⏩', '💠',  '🌀', ]
 
 BALLS = ['🏐', '🏉', '🥎', '⚾', '🏈']
 

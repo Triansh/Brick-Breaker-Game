@@ -4,7 +4,7 @@ from random import randrange, shuffle
 import numpy as np
 
 import config
-from objects.brick import Brick, ExplosiveBrick
+from objects.brick import Brick, ExplosiveBrick, UnBreakableBrick
 
 
 class BrickWall:
@@ -66,12 +66,12 @@ class BrickWall:
     def get_all_bricks(self):
         return self.__bricks
 
-    def get_shape(self):
-        _h, _w = self.__shape
-        return 2 * _h - 1, 6 * _w + 2
-
-    def get_position(self):
-        return self.__position
+    # def get_shape(self):
+    #     _h, _w = self.__shape
+    #     return 2 * _h - 1, 6 * _w + 2
+    #
+    # def get_position(self):
+    #     return self.__position
 
     @staticmethod
     def get_coords(brick):
@@ -90,7 +90,7 @@ class BrickWall:
         #         if any(cd in ex_coord for cd in br_coord):
         #             self.destroy_brick(br)
         # else:
-        try: #TODO check
+        try:  # TODO check
             self.__bricks.remove(brick)
         except Exception:
             return
@@ -114,7 +114,7 @@ class BrickWall:
             x += 4
         elif ch == '*':
             x += 2
-        elif ch =="S":
+        elif ch == "S":
             x += 6
         else:
             if ch == 'L':
@@ -123,9 +123,14 @@ class BrickWall:
             # if ch == 'E':
             #     self.__bricks.append(ExplosiveBrick(id=self.__counter, position=_pos))
             # else:
-            self.__bricks.append(Brick(id=self.__counter, position=_pos,
-                                       level=randrange(1, config.BRICK_TYPES + 1),
-                                       shape=_shape))
+            p = randrange(10)
+            if p >= 2:
+                self.__bricks.append(Brick(id=self.__counter, position=_pos,
+                                           level=randrange(1, config.BRICK_TYPES + 1),
+                                           shape=_shape))
+            else:
+                self.__bricks.append(UnBreakableBrick(id=self.__counter, position=_pos,
+                                                      shape=_shape))
             self.__counter += 1
             x += _shape[1]
         return x

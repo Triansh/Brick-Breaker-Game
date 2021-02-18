@@ -56,7 +56,8 @@ class Game:
             self.draw_objects()
             t3 = time.time() - t
 
-            self.__screen.show(self.__frames_count, self.__lives, self.__score)
+            self.__screen.show(self.__frames_count, self.__lives, self.__score,
+                               len(self.__brick_wall.get_all_bricks()))
 
             t4 = time.time() - t - t3
 
@@ -218,7 +219,7 @@ class Game:
                 if len(self.__balls) + len(to_add) < config.MAXIMUM_BALLS:
                     to_add.append(
                         Ball(self.__counter, ball.get_position(), direction=-ball.get_direction(),
-                             sp_factor=1))
+                             release=True, sp_factor=1))
                     self.__counter += 1
                 else:
                     break

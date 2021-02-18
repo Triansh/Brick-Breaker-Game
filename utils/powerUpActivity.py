@@ -1,3 +1,6 @@
+from random import randrange
+
+import config
 from utils import util
 
 
@@ -5,7 +8,7 @@ class PowerUpActivity:
 
     def __init__(self):
         self.__time = 0
-        self.__duration = util.time_to_frames(100)
+        self.__duration = util.time_to_frames(10)
         self.__active = False
 
     def activate(self, **kwargs):
@@ -51,7 +54,7 @@ class PaddleGrabActivity(PowerUpActivity):
     def deactivate(self, **kwargs):
         _paddle = kwargs['paddle']
         _paddle.set_grabber_mode(False)
-        super().activate(**kwargs)
+        super().deactivate(**kwargs)
 
 
 class FastBallActivity(PowerUpActivity):
@@ -62,14 +65,16 @@ class FastBallActivity(PowerUpActivity):
         balls = kwargs['balls']
         for ball in balls:
             ball.set_sp_factor(2)
+        super().activate(**kwargs)
 
     def deactivate(self, **kwargs):
         balls = kwargs['balls']
         for ball in balls:
             ball.set_sp_factor(1)
+        super().deactivate(**kwargs)
 
 
-class BallCollisionActivity(PowerUpActivity):
+class ThruBallActivity(PowerUpActivity):
     def __init__(self):
         super().__init__()
 
@@ -77,8 +82,13 @@ class BallCollisionActivity(PowerUpActivity):
         balls = kwargs['balls']
         for ball in balls:
             ball.set_thru(True)
+            ball.set_emoji('🔥')
+        super().activate(**kwargs)
 
     def deactivate(self, **kwargs):
         balls = kwargs['balls']
         for ball in balls:
             ball.set_thru(False)
+            emoji = config.BALLS[randrange(len(config.BALLS))]
+            ball.set_emoji(emoji)
+        super().deactivate(**kwargs)

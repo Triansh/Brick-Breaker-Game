@@ -34,9 +34,11 @@ class Brick(GameObject):
 
         if self.__level == 3:
             emoji = "🟦"
+        elif self.__level == 4:
+            emoji = '🟪'
         elif self.__level == 2:
             emoji = "🟩"
-        else:
+        elif self.__level == 1:
             emoji = "🟨"
         super().set_emoji(emoji=emoji)
 
@@ -61,7 +63,19 @@ class Brick(GameObject):
 class ExplosiveBrick(Brick):  # TODO
 
     def __init__(self, id, position):
-        super().__init__(id=id, position=position, level=1, shape=(2, 4), emoji="🟧")
+        super().__init__(id=id, position=position, level=1, shape=(2, 4))
 
     # def set_level(self, level):
     #     self.__level = 0 if level < 0 else level
+
+
+class UnBreakableBrick(Brick):
+
+    def __init__(self, id, position, shape):
+        super().__init__(id=id, position=position, level=100000, shape=shape)
+
+    def set_emoji(self, emoji="🚫"):
+        super().set_emoji(emoji='🟫')
+
+    def set_level(self, level):
+        pass

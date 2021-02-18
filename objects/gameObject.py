@@ -64,6 +64,9 @@ class GameObject:
     def get_rep(self):
         return self.__rep
 
+    def set_rep(self, rep):
+        self.__rep = rep
+
 
 class MovingObject(GameObject):
     def __init__(self, position, emoji, shape, direction):
