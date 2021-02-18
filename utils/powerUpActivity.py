@@ -5,7 +5,7 @@ class PowerUpActivity:
 
     def __init__(self):
         self.__time = 0
-        self.__duration = util.time_to_frames(10)
+        self.__duration = util.time_to_frames(100)
         self.__active = False
 
     def activate(self, **kwargs):
@@ -39,6 +39,21 @@ class PaddleSizeActivity(PowerUpActivity):
         super().deactivate(**kwargs)
 
 
+class PaddleGrabActivity(PowerUpActivity):
+    def __init__(self):
+        super().__init__()
+
+    def activate(self, **kwargs):
+        _paddle = kwargs['paddle']
+        _paddle.set_grabber_mode(True)
+        super().activate(**kwargs)
+
+    def deactivate(self, **kwargs):
+        _paddle = kwargs['paddle']
+        _paddle.set_grabber_mode(False)
+        super().activate(**kwargs)
+
+
 class FastBallActivity(PowerUpActivity):
     def __init__(self):
         super().__init__()
@@ -67,8 +82,3 @@ class BallCollisionActivity(PowerUpActivity):
         balls = kwargs['balls']
         for ball in balls:
             ball.set_thru(False)
-
-
-class PaddleGrabActivity(PowerUpActivity):
-    def __init__(self):
-        super().__init__()

@@ -11,12 +11,13 @@ from objects.gameObject import MovingObject
 
 class Ball(MovingObject):
 
-    def __init__(self, id, position, direction=config.BALL_DIRECTION, sp_factor=0):
+    def __init__(self, id, position, direction=config.BALL_DIRECTION, sp_factor=1):
         """
         sp_factor is the multiplying factor for direction to increase the velocity of ball
         """
         self.__id = id
         self.__sp_factor = sp_factor
+        self.__release = False
         self.__thru = False
         emoji = config.BALLS[randrange(len(config.BALLS))]
         shape = (1, 2)
@@ -28,12 +29,11 @@ class Ball(MovingObject):
     def set_sp_factor(self, sp_factor):
         self.__sp_factor = sp_factor
 
-    def release(self):
-        if self.__sp_factor == 0:
-            self.__sp_factor = 1
+    def set_release(self, release):
+        self.__release = release
 
     def is_released(self):
-        return self.__sp_factor != 0
+        return self.__release
 
     def is_thru(self):
         return self.__thru

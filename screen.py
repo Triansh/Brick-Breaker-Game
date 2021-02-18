@@ -49,7 +49,7 @@ class Screen:
             a = list(a)
             empty, space = a.count(''), a.count(' ')
             extra = _w - (empty * 2) - space
-            if extra:
+            for ix in  range(extra//2):
                 try:
                     last_index = len(a) - 1 - a[::-1].index(' ')
                     self.display[index, last_index] = ''

@@ -24,6 +24,7 @@ class Game:
         self.__paddle = Paddle(position=config.PADDLE_POSITION, emoji="🧱",
                                shape=config.PADDLE_SHAPE)
         self.__brick_wall = BrickWall(position=config.WALL_POSITION, shape=config.WALL_SHAPE)
+        self.__total_bricks = len(self.__brick_wall.get_all_bricks())
         self.__power_ups = []
         self.__powerup_handler = PowerUpHandler()
         self.__keys = KBHit()
@@ -40,13 +41,17 @@ class Game:
         while self.__run:
             t = time.time()
 
-            self.reset_ball_positions()
-            self.manage_key_hits()
             self.refresh()
+            self.manage_key_hits()
 
             self.detect_collisions()
+
             self.check_life_lost()
+
             self.update_powerup_time()
+            self.reset_ball_positions()
+
+            self.update_score()
 
             self.draw_objects()
             t3 = time.time() - t
@@ -63,6 +68,10 @@ class Game:
             print(f"bricks : {len(self.__brick_wall.get_all_bricks())}")
             self.__frames_count += 1
             time.sleep(max(config.DELAY - (time.time() - t), 0))
+
+    def update_score(self):
+        self.__score = (self.__total_bricks - len(
+            self.__brick_wall.get_all_bricks())) * config.SCORE_FACTOR
 
     def draw_objects(self):
         for brick in self.__brick_wall.get_all_bricks():
@@ -109,7 +118,7 @@ class Game:
                 self.move_paddle(_ch)
             elif _ch == ' ':
                 for ball in self.__balls:
-                    ball.release()
+                    ball.set_release(True)
         self.__keys.clear()
 
     def remove_objects_after_missing_paddle(self, objs):
@@ -141,15 +150,16 @@ class Game:
 
     def detect_collisions(self):
 
-        for ball in self.__balls:
-            if ball.is_released():
-                self.detect_ball_paddle_collisions(ball)
-                if not self.detect_brick_collisions(ball):  # TODO
-                    ball.move()
-
         self.detect_power_up_paddle_collisions()
         for power_up in self.__power_ups:
             power_up.move()
+
+        for ball in self.__balls:
+            if ball.is_released():
+                self.detect_ball_paddle_collisions(ball)
+            if ball.is_released():
+                if not self.detect_brick_collisions(ball):  # TODO
+                    ball.move()
 
     def check_paddle_collisions(self, obj):
         _xb, _yb = obj.get_position()
@@ -158,9 +168,12 @@ class Game:
         _xp, _yp = self.__paddle.get_position()
         _hp, _wp = self.__paddle.get_shape()
 
-        return _yp <= _yb <= _yp + _hp and _xp <= _xb + _wb and _xb <= _xp + _wp
+        return _yp <= _yb and _xp <= _xb + _wb and _xb <= _xp + _wp
 
     def detect_ball_paddle_collisions(self, ball):
+
+        if not ball.is_released():
+            return
 
         if not self.check_paddle_collisions(ball):
             return
@@ -172,6 +185,13 @@ class Game:
         _vy *= -1
         _vx += (-1 if _xc - _xb >= 0 else 1) * self.__paddle.get_extra_velocity(_xb)
         ball.set_direction(np.array([_vx, _vy]))
+
+        if self.__paddle.has_grabber_mode():
+            ball.set_release(False)
+            _xp, _yp = self.__paddle.get_position()
+            _hp, _wp = self.__paddle.get_shape()
+            _hb, _wb = ball.get_shape()
+            ball.set_position(np.array([min(max(_xp, _xb), _xp + _wp - _wb), _yp - 1]))
 
     def detect_power_up_paddle_collisions(self):
         pass

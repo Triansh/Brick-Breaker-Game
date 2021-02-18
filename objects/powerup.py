@@ -46,5 +46,5 @@ class FastBall(PowerUp):  # TODO
 
 class PaddleGrab(PowerUp):  # TODO
     def __init__(self, id, position):
-        emoji = "⚜"
+        emoji = "🔱"
         super().__init__(id, position, emoji)
