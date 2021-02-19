@@ -1,18 +1,15 @@
-import sys
 import time
 from random import randrange
-
 import numpy as np
 
 import config
-from objects.brick import Brick
-from objects.brickwall import BrickWall
-from utils import util
-from utils.kBHit import KBHit
 from objects.ball import Ball
 from objects.paddle import Paddle
 from screen import Screen
 from utils.powerupHandler import PowerUpHandler
+from objects.brickwall import BrickWall
+from utils.kBHit import KBHit
+from utils import util
 
 
 class Game:
@@ -23,7 +20,7 @@ class Game:
         self.__balls = [Ball(id=0, position=config.BALL_POSITION)]
         self.__paddle = Paddle(position=config.PADDLE_POSITION, emoji="🧱",
                                shape=config.PADDLE_SHAPE)
-        self.__brick_wall = BrickWall(position=config.WALL_POSITION, shape=config.WALL_SHAPE)
+        self.__brick_wall = BrickWall(position=config.WALL_POSITION)
         self.__total_bricks = self.__brick_wall.get_count_bricks()
         self.__power_ups = []
         self.__powerup_handler = PowerUpHandler()
@@ -55,19 +52,14 @@ class Game:
             self.update_score()
 
             self.draw_objects()
-            t3 = time.time() - t
 
             self.__screen.show(self.__frames_count, self.__lives, self.__score,
                                self.__brick_wall.get_count_bricks())
 
-            t4 = time.time() - t - t3
-
-            print(f"time :  {t3}, {t4}, {t3 + t4}")
             self.__frames_count += 1
             time.sleep(max(config.DELAY - (time.time() - t), 0))
 
     def update_score(self):
-        pass
         self.__score = (self.__total_bricks -
                         self.__brick_wall.get_count_bricks()) * config.SCORE_FACTOR
 

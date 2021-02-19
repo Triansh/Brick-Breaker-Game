@@ -8,8 +8,9 @@ class GameObject:
     def __init__(self, position, emoji, shape: np.array):
         """
         position: np.array -> [x, y]
-        rep : Emoji -> in form of string
+        emoji : Emoji -> in form of string
         shape : tuple -> (height, width) or (row, col)
+        rep : How the object is represented in game using emojis
         """
         self.__position = position
         self.__shape = shape
@@ -94,7 +95,3 @@ class MovingObject(GameObject):
         This is a general function for all objects which move.
         Can be override by next child classes accordingly
         """
-
-
-class StaticObject(GameObject):
-    pass

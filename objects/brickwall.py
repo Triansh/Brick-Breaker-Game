@@ -1,6 +1,4 @@
-import time
-from random import randrange, shuffle
-
+from random import randrange
 import numpy as np
 
 import config
@@ -9,27 +7,32 @@ from objects.brick import Brick, ExplosiveBrick, UnBreakableBrick
 
 class BrickWall:
 
-    def __init__(self, position, shape=(10, 10)):
+    def __init__(self, position):
+        """
+        counter: Integer : Assigns id to each brick
+        position: np.array -> [x, y] : Wall position
+        bricks : list(Brick): All un-destroyed bricks
+        next_explodes : list((Brick, frame)) : The brick must be destroyed in this frame
+        leftover_bricks : Integer: Remaining bricks
+        matrix : list(String) : Design of brick wall
+        """
         self.__counter = 0
         self.__position = position
-        self.__shape = shape
         self.__bricks = []
         self.__next_explodes = []
         self.__leftover_bricks = 0
         self.matrix = [
-            [
-                '00000011111SSSSSSSSSSSSS11111',
-                '0000001P100SSSSSSSSSSSSS00111',
-                '0000001P100SSSSSSSSSSSSS00111',
-                '0000001P100LLLLLLELLLLLL00111',
-                '0000001P100LLLLLLELLLLLL001P1',
-                '0000001P100LLLLLELELLLLL001P1',
-                '0000001P100LLLLLLELLLLLL001P1',
-                '00000011100LLLLLLELLLLLL001P1',
-                '00000011100SSSSSSSSSSSSS001P1',
-                '00000011100SSSSSSSSSSSSS001P1',
-                '00000011111SSSSSSSSSSSSS11111',
-            ]
+            '11111SSSSSSSSSSSSSSS11111',
+            '1P100SSSSSSSSSSSSSSS00111',
+            '1P100SSSSSSSSSSSSSSS00111',
+            '1P100LLLLLLLELLLLLLL00111',
+            '1P100LLLLLLLELLLLLLL001P1',
+            '1P100LLLLLLELELLLLLL001P1',
+            '1P100LLLLLLLELLLLLLL001P1',
+            '11100LLLLLLLELLLLLLL001P1',
+            '11100SSSSSSSSSSSSSSS001P1',
+            '11100SSSSSSSSSSSSSSS001P1',
+            '11111SSSSSSSSSSSSSSS11111',
         ]
         self.make_structure()
 
@@ -41,6 +44,9 @@ class BrickWall:
 
     @staticmethod
     def is_neighbour(center, shape, brick):
+        """
+        Check whether a Brick b  is neighbour of another Brick brick
+        """
         _cx, _cy = center
         _ch, _cw = shape
         for i, j in brick.get_coords():
@@ -52,17 +58,18 @@ class BrickWall:
         if brick.__class__.__name__ == "ExplosiveBrick":
             self.do_explosion(brick, frames)
         else:
-            try:  # TODO check
+            try:
                 self.__bricks.remove(brick)
-            except Exception:
+            except ValueError:
                 pass
         self.__leftover_bricks = len(self.__bricks)
         return
 
     def do_explosion(self, brick, frames):
         to_remove = [brick]
+        center, shape = brick.get_center(), brick.get_shape()
         for b in self.__bricks:
-            if b != brick and self.is_neighbour(brick.get_center(), brick.get_shape(), b):
+            if b != brick and self.is_neighbour(center, shape, b):
                 if b.__class__.__name__ == "ExplosiveBrick":
                     self.__next_explodes.append((b, frames + 5))
                 else:
@@ -77,30 +84,31 @@ class BrickWall:
                 self.do_explosion(brick, frame)
 
     def make_structure(self):
+        """
+        Function to construct the design of wall
+        """
         _shape = (2, 4)
-        z = 0
-        for k in range(len(self.matrix)):
-            y = 0
-            for i in range(len(self.matrix[k])):
-                x = 0
-                for j in range(len(self.matrix[k][i])):
-                    x = self.set_character(self.matrix[k][i][j], x, y, z)
-                y += _shape[0]
-            z += 95
+        y = 0
+        for i in range(len(self.matrix)):
+            x = 0
+            for j in range(len(self.matrix[i])):
+                x = self.set_character(self.matrix[i][j], x, y)
+            y += _shape[0]
         self.__leftover_bricks = len(self.__bricks)
 
-    def set_character(self, ch, x, y, z):
+    def set_character(self, ch, x, y):
+        """
+        How the bricks are placed in layout
+        """
         _shape = (2, 4)
         if ch == '0':
             x += 4
-        elif ch == '*':
-            x += 2
         elif ch == "S":
             x += 6
         else:
             if ch in ['L', 'E']:
                 _shape = (2, 6)
-            _pos = np.array([x + z, y]) + self.__position
+            _pos = np.array([x, y]) + self.__position
 
             if ch in ['E', 'P']:
                 new_brick = ExplosiveBrick(id=self.__counter, position=_pos, shape=_shape)

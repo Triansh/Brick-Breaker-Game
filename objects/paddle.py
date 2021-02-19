@@ -1,14 +1,17 @@
 import numpy as np
-from colorama import Fore, Style, Back
 
 import config
-from utils import util
 from objects.gameObject import MovingObject
 
 
 class Paddle(MovingObject):
 
     def __init__(self, position, emoji, shape):
+        """
+        paddle_shapes: list(shape): Shapes of paddles
+        grabber_mode: Boolean : True if Paddle Grab Power up is activated
+        shape_decider: Integer -> {-1,0,1} : Which shape paddle must take
+        """
         self.__grabber_mode = False
         self.__shape_decider = 0
         self.__paddle_shapes = config.PADDLE_SHAPES
@@ -26,13 +29,13 @@ class Paddle(MovingObject):
         _pcx, _pcy = self.get_center()
         return int(8 * abs(int(_pcx) - xb) / self.get_shape()[1])
 
+    def get_shape_decider(self):
+        return self.__shape_decider
+
     def update_shape_decider(self, decider):
         self.__shape_decider = decider
         self.set_shape(self.__paddle_shapes[self.__shape_decider])
         self.set_emoji()
-
-    def get_shape_decider(self):  # TODO
-        return self.__shape_decider
 
     def has_grabber_mode(self):
         return self.__grabber_mode

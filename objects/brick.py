@@ -1,16 +1,16 @@
-from random import randrange
-
 import numpy as np
 
-import config
 from objects.gameObject import GameObject
+
 
 class Brick(GameObject):
 
     def __init__(self, id, position, level, shape=(1, 2)):
+        """
+        Level: Integer : denotes the strength of brick (max level is 4)
+        """
         self.__id = id
         self.__level = level
-
         super().__init__(position=position, emoji="🚫", shape=shape)
 
     def get_id(self):
@@ -24,6 +24,9 @@ class Brick(GameObject):
         self.set_emoji()
 
     def get_coords(self):
+        """
+        This gives all the four coordinates of the brick
+        """
         _x, _y = self.get_position()
         _h, _w = self.get_shape()
         return [(_x, _y), (_x, _y + _h), (_x + _w, _y), (_x + _w, _y + _h)]
@@ -45,6 +48,9 @@ class Brick(GameObject):
         super().set_emoji(emoji)
 
     def reflect_obj(self, pos, direction):
+        """
+        This accounts for the reflection made when any object collides with brick
+        """
         _x, _y = pos
         _dx, _dy = direction
 

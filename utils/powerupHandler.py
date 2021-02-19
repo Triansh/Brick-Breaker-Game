@@ -1,9 +1,8 @@
-import sys
 from random import randrange
 
+import config
 from objects.powerup import BallMultiplier, ThruBall, FastBall, PaddleGrab, ExpandPaddle, \
     ShrinkPaddle
-
 from utils.powerUpActivity import PaddleSizeActivity, FastBallActivity, ThruBallActivity, \
     PaddleGrabActivity
 
@@ -35,7 +34,7 @@ class PowerUpHandler:
     def create_power_up(self, position):
 
         prob = randrange(100)
-        if prob > 30:
+        if prob > config.POWER_UP_CHANCE:
             return None
 
         _type = randrange(6)

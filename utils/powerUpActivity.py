@@ -7,8 +7,13 @@ from utils import util
 class PowerUpActivity:
 
     def __init__(self):
+        """
+        duration: frames: The time for which the power up will be activated
+        time: frames : Time left for deactivation
+        active: Boolean : True if power up is active
+        """
         self.__time = 0
-        self.__duration = util.time_to_frames(10)
+        self.__duration = util.seconds_to_frames(10)
         self.__active = False
 
     def activate(self, **kwargs):

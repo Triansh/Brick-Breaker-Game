@@ -6,8 +6,8 @@ class PowerUp(MovingObject):
 
     def __init__(self, id, position, emoji):
         self.__id = id
-        shape = config.POWERUP_SHAPE
-        direction = config.POWERUP_DIRECTION
+        shape = config.POWER_UP_SHAPE
+        direction = config.POWER_UP_DIRECTION
         super().__init__(position, emoji, shape=shape, direction=direction)
 
     def move(self, **kwargs):

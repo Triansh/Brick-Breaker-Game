@@ -1,11 +1,6 @@
 from random import randrange
 
-import numpy as np
-from colorama import Fore, Back, Style
-
 import config
-from utils import util
-
 from objects.gameObject import MovingObject
 
 
@@ -13,7 +8,9 @@ class Ball(MovingObject):
 
     def __init__(self, id, position, direction=config.BALL_DIRECTION, release=False, sp_factor=1):
         """
-        sp_factor is the multiplying factor for direction to increase the velocity of ball
+        sp_factor : Integer -> {1,2} : the multiplying factor for direction to increase the velocity of ball (for fast ball)
+        release: Boolean : tells us whether the ball is released or not
+        thru: Boolean: True if Thru Ball Power up is activated
         """
         self.__id = id
         self.__sp_factor = sp_factor
@@ -29,11 +26,11 @@ class Ball(MovingObject):
     def set_sp_factor(self, sp_factor):
         self.__sp_factor = sp_factor
 
-    def set_release(self, release):
-        self.__release = release
-
     def is_released(self):
         return self.__release
+
+    def set_release(self, release):
+        self.__release = release
 
     def is_thru(self):
         return self.__thru
@@ -47,7 +44,7 @@ class Ball(MovingObject):
 
     def handle_wall_reflection(self):
         """
-        This function accounts for all collisions with walls
+        This function accounts for all collisions of ball with walls
         """
         _x, _y = self.get_position()
         _h, _w = self.get_shape()
