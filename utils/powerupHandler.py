@@ -19,7 +19,7 @@ class PowerUpHandler:
         ]
 
     @staticmethod
-    def map(name):
+    def __map(name):
 
         if name in ["ExpandPaddle", "ShrinkPaddle"]:
             return 0
@@ -55,7 +55,7 @@ class PowerUpHandler:
             return None
 
     def activate_power_ups(self, name, **kwargs):
-        index = self.map(name)
+        index = self.__map(name)
         self.__power_ups_activity[index].activate(**kwargs)
 
     def update_power_ups(self, **kwargs):

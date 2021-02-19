@@ -22,19 +22,21 @@ class BrickWall:
         self.__next_explodes = []
         self.__leftover_bricks = 0
         self.matrix = [
-            '11111SSSSSSSSSSSSSSS11111',
+            '11111SSLLLEEEEELLLSS11111',
+            '1P100SSSSSSSESSSSSSS00111',
             '1P100SSSSSSSSSSSSSSS00111',
-            '1P100SSSSSSSSSSSSSSS00111',
-            '1P100LLLLLLLELLLLLLL00111',
+            '1P100LLLLLLLLLLLLLLL00111',
             '1P100LLLLLLLELLLLLLL001P1',
-            '1P100LLLLLLELELLLLLL001P1',
             '1P100LLLLLLLELLLLLLL001P1',
-            '11100LLLLLLLELLLLLLL001P1',
+            '1P100LLEEEEEEEEEEELL001P1',
+            '1P100LLLLLLLSLLLLLLL001P1',
+            '1P100LLLLLLLSLLLLLLL001P1',
+            '11100LLLLLLLSLLLLLLL001P1',
             '11100SSSSSSSSSSSSSSS001P1',
             '11100SSSSSSSSSSSSSSS001P1',
             '11111SSSSSSSSSSSSSSS11111',
         ]
-        self.make_structure()
+        self.__make_structure()
 
     def get_all_bricks(self):
         return self.__bricks + [x[0] for x in self.__next_explodes]
@@ -43,7 +45,7 @@ class BrickWall:
         return self.__leftover_bricks
 
     @staticmethod
-    def is_neighbour(center, shape, brick):
+    def _is_neighbour(center, shape, brick):
         """
         Check whether a Brick b  is neighbour of another Brick brick
         """
@@ -56,7 +58,7 @@ class BrickWall:
 
     def destroy_brick(self, brick: Brick, frames):
         if brick.__class__.__name__ == "ExplosiveBrick":
-            self.do_explosion(brick, frames)
+            self._do_explosion(brick, frames)
         else:
             try:
                 self.__bricks.remove(brick)
@@ -65,13 +67,13 @@ class BrickWall:
         self.__leftover_bricks = len(self.__bricks)
         return
 
-    def do_explosion(self, brick, frames):
+    def _do_explosion(self, brick, frames):
         to_remove = [brick]
         center, shape = brick.get_center(), brick.get_shape()
         for b in self.__bricks:
-            if b != brick and self.is_neighbour(center, shape, b):
+            if b != brick and self._is_neighbour(center, shape, b):
                 if b.__class__.__name__ == "ExplosiveBrick":
-                    self.__next_explodes.append((b, frames + 5))
+                    self.__next_explodes.append((b, frames + 2))
                 else:
                     to_remove.append(b)
         self.__bricks = [x for x in self.__bricks if x not in to_remove]
@@ -81,9 +83,9 @@ class BrickWall:
     def explode_bricks(self, frame):
         for brick, f in self.__next_explodes:
             if f == frame:
-                self.do_explosion(brick, frame)
+                self._do_explosion(brick, frame)
 
-    def make_structure(self):
+    def __make_structure(self):
         """
         Function to construct the design of wall
         """
@@ -92,11 +94,11 @@ class BrickWall:
         for i in range(len(self.matrix)):
             x = 0
             for j in range(len(self.matrix[i])):
-                x = self.set_character(self.matrix[i][j], x, y)
+                x = self.__set_character(self.matrix[i][j], x, y)
             y += _shape[0]
         self.__leftover_bricks = len(self.__bricks)
 
-    def set_character(self, ch, x, y):
+    def __set_character(self, ch, x, y):
         """
         How the bricks are placed in layout
         """
@@ -113,7 +115,7 @@ class BrickWall:
             if ch in ['E', 'P']:
                 new_brick = ExplosiveBrick(id=self.__counter, position=_pos, shape=_shape)
             else:
-                if randrange(10) >= 2:
+                if randrange(15) >= 2:
                     new_brick = Brick(id=self.__counter, position=_pos, shape=_shape,
                                       level=randrange(1, config.BRICK_TYPES + 1))
                 else:

@@ -33,7 +33,7 @@ class Screen:
         _x, _y = int(_x), int(_y)
         self.__display[_y:_y + _h, _x:_x + _w] = display
 
-    def get_top_bar(self, frames, lives, score, bricks):
+    def __get_top_bar(self, frames, lives, score, bricks):
         """
         Designing of Top Bar
         """
@@ -76,7 +76,7 @@ class Screen:
         finalOutput = ""
         finalOutput += "".join(config.BACKGROUND_STYLE)
 
-        finalOutput += self.get_top_bar(frames, lives, score, bricks) + \
+        finalOutput += self.__get_top_bar(frames, lives, score, bricks) + \
                        "\n".join((
                            (single_x + "".join(x) + single_x) for x in self.__display
                        )) + '\n'

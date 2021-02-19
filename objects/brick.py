@@ -47,7 +47,7 @@ class Brick(GameObject):
             emoji = "🟨"
         super().set_emoji(emoji)
 
-    def reflect_obj(self, pos, direction):
+    def _reflect_obj(self, pos, direction):
         """
         This accounts for the reflection made when any object collides with brick
         """

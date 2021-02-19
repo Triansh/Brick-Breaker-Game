@@ -51,9 +51,9 @@ class Paddle(MovingObject):
             emoji = '🤓'
         super().set_emoji(emoji=emoji)
 
-    def make_rep(self):
+    def _make_rep(self):
         if not self.__grabber_mode:
-            super().make_rep()
+            super()._make_rep()
             return
 
         _shape = self.get_shape()

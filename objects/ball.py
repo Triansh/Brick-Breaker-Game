@@ -39,10 +39,10 @@ class Ball(MovingObject):
         self.__thru = thru
 
     def move(self, **kwargs):
-        self.handle_wall_reflection()
+        self._handle_wall_reflection()
         self.add_position(self.get_direction() * self.__sp_factor)
 
-    def handle_wall_reflection(self):
+    def _handle_wall_reflection(self):
         """
         This function accounts for all collisions of ball with walls
         """

@@ -23,13 +23,13 @@ class GameObject:
 
     def set_position(self, position):
         self.__position = position
-        self.fix_position()
+        self._fix_position()
 
     def add_position(self, position):
         self.__position += position
-        self.fix_position()
+        self._fix_position()
 
-    def fix_position(self):
+    def _fix_position(self):
         _x, _y = self.get_position()
         _h, _w = self.get_shape()
         _fix_x = min(max(0, _x), config.SCREEN_WIDTH - _w)
@@ -45,17 +45,17 @@ class GameObject:
 
     def set_shape(self, shape):
         self.__shape = shape
-        self.fix_position()
-        self.make_rep()
+        self._fix_position()
+        self._make_rep()
 
     def get_emoji(self):
         return self.__emoji
 
     def set_emoji(self, emoji):
         self.__emoji = emoji
-        self.make_rep()
+        self._make_rep()
 
-    def make_rep(self):
+    def _make_rep(self):
         _block = np.full(self.__shape, ' ')
         for i in range(self.__shape[0]):
             for j in range(self.__shape[1]):
@@ -82,9 +82,9 @@ class MovingObject(GameObject):
 
     def set_direction(self, direction):
         self.__direction = direction
-        self.fix_direction()
+        self._fix_direction()
 
-    def fix_direction(self):
+    def _fix_direction(self):
         self.__direction[0] = max(min(self.__direction[0], config.MAX_VELOCITY),
                                   -config.MAX_VELOCITY)
         self.__direction[1] = max(min(self.__direction[1], config.MAX_VELOCITY),

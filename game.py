@@ -31,25 +31,25 @@ class Game:
         self.__score = 0
 
         util.hide_cursor()
-        self.reset_ball_positions()
+        self._reset_ball_positions()
 
     def start(self):
 
         while self.__run:
             t = time.time()
 
-            self.refresh()
-            self.manage_key_hits()
+            self._refresh()
+            self._manage_key_hits()
 
             self.__brick_wall.explode_bricks(self.__frames_count)
-            self.detect_collisions()
+            self._detect_collisions()
 
-            self.check_life_lost()
+            self._check_life_lost()
 
-            self.update_powerup_time()
-            self.reset_ball_positions()
+            self._update_power_up_time()
+            self._reset_ball_positions()
 
-            self.update_score()
+            self._update_score()
 
             self.draw_objects()
 
@@ -59,7 +59,7 @@ class Game:
             self.__frames_count += 1
             time.sleep(max(config.DELAY - (time.time() - t), 0))
 
-    def update_score(self):
+    def _update_score(self):
         self.__score = (self.__total_bricks -
                         self.__brick_wall.get_count_bricks()) * config.SCORE_FACTOR
 
@@ -72,11 +72,11 @@ class Game:
         for power_up in self.__power_ups:
             self.__screen.draw(power_up)
 
-    def refresh(self):
+    def _refresh(self):
         self.__screen.clear()
         util.position_cursor()
 
-    def move_paddle(self, ch):
+    def _move_paddle(self, ch):
         self.__paddle.move(ch=ch)
         _ph, _pw = self.__paddle.get_shape()
         _px, _py = self.__paddle.get_position()
@@ -87,7 +87,7 @@ class Game:
                     _px <= _bx + _bw and _bx <= _px + _px and _by + 1 == _py):
                 ball.add_position(self.__paddle.get_direction() * (1 if ch == 'd' else -1))
 
-    def reset_ball_positions(self):  # TODO
+    def _reset_ball_positions(self):  # TODO
         _ph, _pw = self.__paddle.get_shape()
         _px, _py = self.__paddle.get_position()
         for ball in self.__balls:
@@ -98,20 +98,20 @@ class Game:
                 _new_pos = self.__paddle.get_position() + np.array([randrange(1, _pw - 1), - 1])
                 ball.set_position(_new_pos)
 
-    def manage_key_hits(self):
+    def _manage_key_hits(self):
 
         if self.__keys.kb_hit() is True:
             _ch = self.__keys.get_ch().lower()
             if _ch == 'q':
                 self.__run = False
             elif _ch == 'a' or _ch == 'd':
-                self.move_paddle(_ch)
+                self._move_paddle(_ch)
             elif _ch == ' ':
                 for ball in self.__balls:
                     ball.set_release(True)
         self.__keys.clear()
 
-    def remove_objects_after_missing_paddle(self, objs):
+    def _remove_objects_after_missing_paddle(self, objs):
         _xp, _yp = self.__paddle.get_position()
         _hp, _wp = self.__paddle.get_shape()
         _pcx, _pcy = self.__paddle.get_center()
@@ -124,10 +124,10 @@ class Game:
                 to_remove.append(obj)
         return [b for b in objs if b not in to_remove]
 
-    def check_life_lost(self):
+    def _check_life_lost(self):
 
-        self.__balls = self.remove_objects_after_missing_paddle(self.__balls)
-        self.__power_ups = self.remove_objects_after_missing_paddle(self.__power_ups)
+        self.__balls = self._remove_objects_after_missing_paddle(self.__balls)
+        self.__power_ups = self._remove_objects_after_missing_paddle(self.__power_ups)
 
         if len(self.__balls) == 0:
             self.__lives -= 1
@@ -137,22 +137,22 @@ class Game:
                 return
             self.__balls.append(Ball(id=self.__counter, position=config.BALL_POSITION))
             self.__counter += 1
-            self.reset_ball_positions()
+            self._reset_ball_positions()
 
-    def detect_collisions(self):
+    def _detect_collisions(self):
 
-        self.detect_power_up_paddle_collisions()
+        self._detect_power_up_paddle_collisions()
         for power_up in self.__power_ups:
             power_up.move()
 
         for ball in self.__balls:
             if ball.is_released():
-                self.detect_ball_paddle_collisions(ball)
+                self._detect_ball_paddle_collisions(ball)
             if ball.is_released():
-                if not self.detect_brick_collisions(ball):  # TODO
+                if not self._detect_brick_collisions(ball):  # TODO
                     ball.move()
 
-    def check_paddle_collisions(self, obj):
+    def _check_paddle_collisions(self, obj):
         _xb, _yb = obj.get_position()
         _hb, _wb = obj.get_shape()
 
@@ -161,12 +161,12 @@ class Game:
 
         return _yp <= _yb and _xp <= _xb + _wb and _xb <= _xp + _wp
 
-    def detect_ball_paddle_collisions(self, ball):
+    def _detect_ball_paddle_collisions(self, ball):
 
         if not ball.is_released():
             return
 
-        if not self.check_paddle_collisions(ball):
+        if not self._check_paddle_collisions(ball):
             return
 
         _xb, _yb = ball.get_position()
@@ -184,14 +184,14 @@ class Game:
             _hb, _wb = ball.get_shape()
             ball.set_position(np.array([min(max(_xp, _xb), _xp + _wp - _wb), _yp - 1]))
 
-    def detect_power_up_paddle_collisions(self):
+    def _detect_power_up_paddle_collisions(self):
         pass
         to_remove = []
         for power_up in self.__power_ups:
-            if self.check_paddle_collisions(power_up):
+            if self._check_paddle_collisions(power_up):
                 name = power_up.__class__.__name__
                 if name == "BallMultiplier":
-                    self.multiply_balls()
+                    self._multiply_balls()
                 elif name == "ShrinkPaddle":
                     self.__powerup_handler.activate_power_ups(name, paddle=self.__paddle,
                                                               expand=False)
@@ -202,7 +202,7 @@ class Game:
 
         self.__power_ups = [p for p in self.__power_ups if p not in to_remove]
 
-    def multiply_balls(self):
+    def _multiply_balls(self):
         to_add = []
         for ball in self.__balls:
             if ball.is_released():
@@ -215,11 +215,11 @@ class Game:
                     break
         self.__balls = self.__balls + to_add
 
-    def update_powerup_time(self):
+    def _update_power_up_time(self):
         pass
         self.__powerup_handler.update_power_ups(balls=self.__balls, paddle=self.__paddle)
 
-    def detect_brick_collisions(self, ball):
+    def _detect_brick_collisions(self, ball):
         _dir = ball.get_direction()
         _bc = ball.get_center()
         _radius = ball.get_shape()  # minor axis(h) , major axis(w)
@@ -250,11 +250,11 @@ class Game:
 
                 for index, brick in enumerate(c_bricks):
 
-                    _next_dir = brick.reflect_obj(_prev_pos, _dir)
+                    _next_dir = brick._reflect_obj(_prev_pos, _dir)
                     _final_dir[index] = _next_dir
                     brick.set_level(brick.get_level() - 1)
                     if brick.get_level() == 0:
-                        self.destroy_and_check_for_powerup(brick)
+                        self._destroy_and_check_for_powerup(brick)
 
                 ball.set_direction(_final_dir[0])
                 # ball.set_direction(np.mean(_final_dir, axis=0))
@@ -262,11 +262,11 @@ class Game:
                 return False
 
         for brick in c_bricks:
-            self.destroy_and_check_for_powerup(brick)
+            self._destroy_and_check_for_powerup(brick)
 
         return False
 
-    def destroy_and_check_for_powerup(self, brick):
+    def _destroy_and_check_for_powerup(self, brick):
         _pos = brick.get_position()
         self.__brick_wall.destroy_brick(brick, self.__frames_count)
         new_power_up = self.__powerup_handler.create_power_up(_pos)
