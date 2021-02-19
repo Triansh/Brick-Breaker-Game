@@ -1,7 +1,6 @@
 from random import randrange
 
-import config
-from utils import util
+from utils import util, config
 
 
 class PowerUpActivity:

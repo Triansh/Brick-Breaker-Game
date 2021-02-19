@@ -1,7 +1,7 @@
 from random import randrange
 import numpy as np
 
-import config
+from utils import config
 from objects.brick import Brick, ExplosiveBrick, UnBreakableBrick
 
 
