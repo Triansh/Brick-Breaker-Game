@@ -2,9 +2,8 @@ from colorama import Style
 import numpy as np
 import sys
 
-import config
 from objects.gameObject import GameObject
-from utils import util
+from utils import util, config
 
 
 class Screen:

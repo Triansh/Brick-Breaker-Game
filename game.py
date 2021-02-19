@@ -2,14 +2,13 @@ import time
 from random import randrange
 import numpy as np
 
-import config
 from objects.ball import Ball
 from objects.paddle import Paddle
 from screen import Screen
 from utils.powerupHandler import PowerUpHandler
-from objects.brickwall import BrickWall
+from utils.brickwall import BrickWall
 from utils.kBHit import KBHit
-from utils import util
+from utils import util, config
 
 
 class Game:
@@ -23,7 +22,7 @@ class Game:
         self.__brick_wall = BrickWall(position=config.WALL_POSITION)
         self.__total_bricks = self.__brick_wall.get_count_bricks()
         self.__power_ups = []
-        self.__powerup_handler = PowerUpHandler()
+        self.__power_up_handler = PowerUpHandler()
         self.__keys = KBHit()
 
         self.__lives = 7
@@ -131,7 +130,7 @@ class Game:
 
         if len(self.__balls) == 0:
             self.__lives -= 1
-            self.__powerup_handler.deactivate_power_ups(paddle=self.__paddle, balls=self.__balls)
+            self.__power_up_handler.deactivate_power_ups(paddle=self.__paddle, balls=self.__balls)
             if self.__lives == 0:
                 self.__run = False
                 return
@@ -193,11 +192,11 @@ class Game:
                 if name == "BallMultiplier":
                     self._multiply_balls()
                 elif name == "ShrinkPaddle":
-                    self.__powerup_handler.activate_power_ups(name, paddle=self.__paddle,
-                                                              expand=False)
+                    self.__power_up_handler.activate_power_ups(name, paddle=self.__paddle,
+                                                               expand=False)
                 else:
-                    self.__powerup_handler.activate_power_ups(name, paddle=self.__paddle,
-                                                              balls=self.__balls)  # TODO
+                    self.__power_up_handler.activate_power_ups(name, paddle=self.__paddle,
+                                                               balls=self.__balls)  # TODO
                 to_remove.append(power_up)
 
         self.__power_ups = [p for p in self.__power_ups if p not in to_remove]
@@ -217,7 +216,7 @@ class Game:
 
     def _update_power_up_time(self):
         pass
-        self.__powerup_handler.update_power_ups(balls=self.__balls, paddle=self.__paddle)
+        self.__power_up_handler.update_power_ups(balls=self.__balls, paddle=self.__paddle)
 
     def _detect_brick_collisions(self, ball):
         _dir = ball.get_direction()
@@ -254,7 +253,7 @@ class Game:
                     _final_dir[index] = _next_dir
                     brick.set_level(brick.get_level() - 1)
                     if brick.get_level() == 0:
-                        self._destroy_and_check_for_powerup(brick)
+                        self._destroy_and_check_for_power_up(brick)
 
                 ball.set_direction(_final_dir[0])
                 # ball.set_direction(np.mean(_final_dir, axis=0))
@@ -262,14 +261,14 @@ class Game:
                 return False
 
         for brick in c_bricks:
-            self._destroy_and_check_for_powerup(brick)
+            self._destroy_and_check_for_power_up(brick)
 
         return False
 
-    def _destroy_and_check_for_powerup(self, brick):
+    def _destroy_and_check_for_power_up(self, brick):
         _pos = brick.get_position()
         self.__brick_wall.destroy_brick(brick, self.__frames_count)
-        new_power_up = self.__powerup_handler.create_power_up(_pos)
+        new_power_up = self.__power_up_handler.create_power_up(_pos)
         if new_power_up is not None:
             self.__power_ups.append(new_power_up)
 

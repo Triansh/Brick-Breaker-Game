@@ -1,6 +1,6 @@
 import numpy as np
 
-import config
+from utils import config
 
 
 class GameObject:

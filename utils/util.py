@@ -1,4 +1,4 @@
-import config
+from utils import config
 
 
 def position_cursor():

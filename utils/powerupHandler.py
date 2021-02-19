@@ -1,6 +1,6 @@
 from random import randrange
 
-import config
+from utils import config
 from objects.powerup import BallMultiplier, ThruBall, FastBall, PaddleGrab, ExpandPaddle, \
     ShrinkPaddle
 from utils.powerUpActivity import PaddleSizeActivity, FastBallActivity, ThruBallActivity, \
