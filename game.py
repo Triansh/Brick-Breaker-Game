@@ -25,7 +25,7 @@ class Game:
         self.__power_up_handler = PowerUpHandler()
         self.__keys = KBHit()
 
-        self.__lives = 7
+        self.__lives = config.LIVES
         self.__frames_count = 0
         self.__score = 0
 
@@ -56,6 +56,10 @@ class Game:
                                self.__brick_wall.get_count_bricks())
 
             self.__frames_count += 1
+
+            if self.__brick_wall.get_count_bricks() == 0:
+                self.__run = False
+
             time.sleep(max(config.DELAY - (time.time() - t), 0))
 
     def _update_score(self):
@@ -271,6 +275,12 @@ class Game:
         new_power_up = self.__power_up_handler.create_power_up(_pos)
         if new_power_up is not None:
             self.__power_ups.append(new_power_up)
+
+    def _end_game(self):
+        if self.__lives == 0:
+            print('GAME OVER 😈 !!')
+        elif self.__brick_wall.get_count_bricks() == 0:
+            print('YOU WIN 🥳 !!')
 
     def __del__(self):
         print("BYE")
