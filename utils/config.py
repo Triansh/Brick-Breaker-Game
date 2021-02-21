@@ -7,8 +7,8 @@ from colorama import Fore, Back, Style
 
 # SCREEN SIZES
 _sc_height, _sc_width = [int(x) for x in os.popen("stty size", "r").read().split()]
-SCREEN_WIDTH = _sc_width - 7
-SCREEN_HEIGHT = _sc_height - 7
+SCREEN_WIDTH = _sc_width - 24
+SCREEN_HEIGHT = _sc_height - 6
 
 # COLOR STYLES
 BARRIER_STYLE = (Fore.LIGHTGREEN_EX, Back.BLACK, Style.BRIGHT)
@@ -37,7 +37,7 @@ MAX_VELOCITY = 3
 BALLS = ['🏐', '🏉', '🥎', '⚾', '🏈']
 
 # WALL
-WALL_POSITION = np.array([SCREEN_WIDTH // 2 - 64, 4])
+WALL_POSITION = np.array([SCREEN_WIDTH // 2 - 65, 4])
 
 # BRICKS
 BRICK_TYPES = 4

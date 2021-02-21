@@ -7,7 +7,7 @@ Ensure that you have python3.6+ and pip.
 Set up and activate virtual environment (optional).
 
 ```shell
-$ python3 -m venv env
+$ python -m venv env
 $ source env/bin/activate
 ```
 
@@ -21,15 +21,16 @@ Run the following to play the game. Also ensure that you play the game in full s
 terminal.
 
 ```shell
-$ python3 main.py
+$ python main.py
 ```
 
 ## Gameplay
 
 The game is inspired from the old classic brick breaker game similar
-to [this](https://www.youtube.com/watch?v=BXEk0IHzHOM). The player will be using a paddle with a bouncing ball to smash a
-wall of bricks and make high scores! The objective of the game is to break all the bricks as fast as possible and
-beat the highest score! You lose a life when the ball touches the ground below the paddle.
+to [this](https://www.youtube.com/watch?v=BXEk0IHzHOM). The player will be using a paddle with a
+bouncing ball to smash a wall of bricks and make high scores! The objective of the game is to break
+all the bricks as fast as possible and beat the highest score! You lose a life when the ball touches
+the ground below the paddle.
 
 ## Controls
 

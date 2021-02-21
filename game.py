@@ -260,8 +260,6 @@ class Game:
                         self._destroy_and_check_for_power_up(brick)
 
                 ball.set_direction(_final_dir[0])
-                # ball.set_direction(np.mean(_final_dir, axis=0))
-                # ball.set_position(_prev_pos.astype(int))  # TODO
                 return False
 
         for brick in c_bricks:
@@ -283,5 +281,6 @@ class Game:
             print('YOU WIN 🥳 !!')
 
     def __del__(self):
+        self._end_game()
         print("BYE")
         util.show_cursor()
