@@ -29,7 +29,7 @@ class Screen:
         _h, _w = obj.get_shape()
         display = obj.get_rep()
 
-        _x, _y = int(_x), int(_y)
+        _x, _y = round(_x), round(_y)
         self.__display[_y:_y + _h, _x:_x + _w] = display
 
     def __get_top_bar(self, frames, lives, score, bricks):

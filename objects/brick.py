@@ -5,12 +5,13 @@ from objects.gameObject import GameObject
 
 class Brick(GameObject):
 
-    def __init__(self, id, position, level, shape=(1, 2)):
+    def __init__(self, id, position, level, shape=(1, 2), rainbow=False):
         """
         Level: Integer : denotes the strength of brick (max level is 4)
         """
         self.__id = id
         self.__level = level
+        self.__isRainbow = rainbow
         super().__init__(position=position, emoji="🚫", shape=shape)
 
     def get_id(self):
@@ -20,7 +21,7 @@ class Brick(GameObject):
         return self.__level
 
     def set_level(self, level):
-        self.__level = 0 if level < 0 else level
+        self.__level = level
         self.set_emoji()
 
     def get_coords(self):
@@ -47,10 +48,12 @@ class Brick(GameObject):
             emoji = "🟨"
         super().set_emoji(emoji)
 
-    def _reflect_obj(self, pos, direction):
+    def reflect_obj(self, pos, direction):
         """
         This accounts for the reflection made when any object collides with brick
         """
+        self.__isRainbow = False
+
         _x, _y = pos
         _dx, _dy = direction
 
@@ -67,6 +70,11 @@ class Brick(GameObject):
 
         return np.array([_dx, _dy])
 
+    def update(self):
+        if not self.__isRainbow:
+            return
+        self.set_level((self.get_level()) % 4 + 1)
+
 
 class ExplosiveBrick(Brick):  # TODO
 
@@ -79,11 +87,12 @@ class ExplosiveBrick(Brick):  # TODO
 
 class UnBreakableBrick(Brick):
 
-    def __init__(self, id, position, shape):
+    def __init__(self, id, position, shape, ufo=False):
+        self.__ufo = ufo
         super().__init__(id=id, position=position, level=100000, shape=shape)
 
     def set_emoji(self, emoji="🚫"):
-        super().set_emoji(emoji='🟫')
+        super().set_emoji(emoji='🛸' if self.__ufo else '🟫')
 
     def set_level(self, level):
-        pass
+        return

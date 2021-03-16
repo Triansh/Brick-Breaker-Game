@@ -19,11 +19,12 @@ class Game:
         self.__balls = [Ball(id=0, position=config.BALL_POSITION)]
         self.__paddle = Paddle(position=config.PADDLE_POSITION, emoji="🧱",
                                shape=config.PADDLE_SHAPE)
-        self.__brick_wall = BrickWall(position=config.WALL_POSITION)
-        self.__total_bricks = self.__brick_wall.get_count_bricks()
+        self.__brick_wall = BrickWall()
         self.__power_ups = []
         self.__power_up_handler = PowerUpHandler()
         self.__keys = KBHit()
+
+        self.__boss_mode = False
 
         self.__lives = config.LIVES
         self.__frames_count = 0
@@ -33,38 +34,38 @@ class Game:
         self._reset_ball_positions()
 
     def start(self):
-
+        print(config.DELAY)
+        z = 0
         while self.__run:
             t = time.time()
 
             self._refresh()
-            self._manage_key_hits()
 
-            self.__brick_wall.explode_bricks(self.__frames_count)
+            self.__score += config.SCORE_FACTOR * self.__brick_wall.explode_bricks(
+                self.__frames_count)
             self._detect_collisions()
-
-            self._check_life_lost()
 
             self._update_power_up_time()
             self._reset_ball_positions()
 
-            self._update_score()
+            t1 = time.time() - t
 
             self.draw_objects()
-
+            t2 = time.time() - t1 - t
             self.__screen.show(self.__frames_count, self.__lives, self.__score,
                                self.__brick_wall.get_count_bricks())
 
             self.__frames_count += 1
 
-            if self.__brick_wall.get_count_bricks() == 0:
-                self.__run = False
+            self._check_life_lost()
+            self._manage_key_hits()
 
-            time.sleep(max(config.DELAY - (time.time() - t), 0))
-
-    def _update_score(self):
-        self.__score = (self.__total_bricks -
-                        self.__brick_wall.get_count_bricks()) * config.SCORE_FACTOR
+            z += 1 if (time.time() - t < config.DELAY is True) else 0
+            ftime = time.time() - t - t1 - t2
+            print(f"{t1} {t2} {ftime} {z}")
+            time.sleep(max(config.DELAY - ftime, 0))
+            if self.__frames_count % 20 == 0:
+                self.__brick_wall.update_bricks()
 
     def draw_objects(self):
         for brick in self.__brick_wall.get_all_bricks():
@@ -74,10 +75,6 @@ class Game:
         self.__screen.draw(self.__paddle)
         for power_up in self.__power_ups:
             self.__screen.draw(power_up)
-
-    def _refresh(self):
-        self.__screen.clear()
-        util.position_cursor()
 
     def _move_paddle(self, ch):
         self.__paddle.move(ch=ch)
@@ -112,6 +109,11 @@ class Game:
             elif _ch == ' ':
                 for ball in self.__balls:
                     ball.set_release(True)
+            elif _ch == 's':
+                if self.__brick_wall.get_stage() == config.STAGES - 1:
+                    self.__run = False
+                else:
+                    self.change_stage()
         self.__keys.clear()
 
     def _remove_objects_after_missing_paddle(self, objs):
@@ -127,21 +129,6 @@ class Game:
                 to_remove.append(obj)
         return [b for b in objs if b not in to_remove]
 
-    def _check_life_lost(self):
-
-        self.__balls = self._remove_objects_after_missing_paddle(self.__balls)
-        self.__power_ups = self._remove_objects_after_missing_paddle(self.__power_ups)
-
-        if len(self.__balls) == 0:
-            self.__lives -= 1
-            self.__power_up_handler.deactivate_power_ups(paddle=self.__paddle, balls=self.__balls)
-            if self.__lives == 0:
-                self.__run = False
-                return
-            self.__balls.append(Ball(id=self.__counter, position=config.BALL_POSITION))
-            self.__counter += 1
-            self._reset_ball_positions()
-
     def _detect_collisions(self):
 
         self._detect_power_up_paddle_collisions()
@@ -155,6 +142,9 @@ class Game:
                 if not self._detect_brick_collisions(ball):  # TODO
                     ball.move()
 
+    def _update_power_up_time(self):
+        self.__power_up_handler.update_power_ups(balls=self.__balls, paddle=self.__paddle)
+
     def _check_paddle_collisions(self, obj):
         _xb, _yb = obj.get_position()
         _hb, _wb = obj.get_shape()
@@ -166,10 +156,7 @@ class Game:
 
     def _detect_ball_paddle_collisions(self, ball):
 
-        if not ball.is_released():
-            return
-
-        if not self._check_paddle_collisions(ball):
+        if (not ball.is_released()) or (not self._check_paddle_collisions(ball)):
             return
 
         _xb, _yb = ball.get_position()
@@ -188,7 +175,6 @@ class Game:
             ball.set_position(np.array([min(max(_xp, _xb), _xp + _wp - _wb), _yp - 1]))
 
     def _detect_power_up_paddle_collisions(self):
-        pass
         to_remove = []
         for power_up in self.__power_ups:
             if self._check_paddle_collisions(power_up):
@@ -218,9 +204,9 @@ class Game:
                     break
         self.__balls = self.__balls + to_add
 
-    def _update_power_up_time(self):
-        pass
-        self.__power_up_handler.update_power_ups(balls=self.__balls, paddle=self.__paddle)
+    def _refresh(self):
+        self.__screen.clear()
+        util.position_cursor()
 
     def _detect_brick_collisions(self, ball):
         _dir = ball.get_direction()
@@ -253,7 +239,7 @@ class Game:
 
                 for index, brick in enumerate(c_bricks):
 
-                    _next_dir = brick._reflect_obj(_prev_pos, _dir)
+                    _next_dir = brick.reflect_obj(_prev_pos, _dir)
                     _final_dir[index] = _next_dir
                     brick.set_level(brick.get_level() - 1)
                     if brick.get_level() == 0:
@@ -269,18 +255,48 @@ class Game:
 
     def _destroy_and_check_for_power_up(self, brick):
         _pos = brick.get_position()
-        self.__brick_wall.destroy_brick(brick, self.__frames_count)
+        self.__score += config.SCORE_FACTOR * self.__brick_wall.destroy_brick(brick,
+                                                                              self.__frames_count)
+
         new_power_up = self.__power_up_handler.create_power_up(_pos)
         if new_power_up is not None:
             self.__power_ups.append(new_power_up)
 
-    def _end_game(self):
-        if self.__lives == 0:
-            print('GAME OVER 😈 !!')
-        elif self.__brick_wall.get_count_bricks() == 0:
-            print('YOU WIN 🥳 !!')
+    def change_stage(self):
+        time.sleep(1)
+        if self.__brick_wall.get_stage() == config.STAGES:
+            self.__run = False
+            return True
+        self.__brick_wall.increment_stage()
+        if self.__brick_wall.get_stage() == config.STAGES - 1:
+            self.__boss_mode = True
+        return False
+
+    def reset_all(self):
+        self.__power_up_handler.deactivate_power_ups(paddle=self.__paddle, balls=self.__balls)
+        self.__balls = [Ball(id=self.__counter, position=config.BALL_POSITION)]
+        self.__power_ups = []
+        self.__counter += 1
+        self._reset_ball_positions()
+
+    def _check_life_lost(self):
+        self.__balls = self._remove_objects_after_missing_paddle(self.__balls)
+        self.__power_ups = self._remove_objects_after_missing_paddle(self.__power_ups)
+
+        if (self.__boss_mode is False) and self.__brick_wall.get_count_bricks() == 0:
+            self.reset_all()
+            if self.change_stage():
+                self.__run = False
+                print('YOU WIN! 🥳🥳')
+
+        if len(self.__balls) == 0:
+            self.reset_all()
+            self.__lives -= 1
+            if self.__lives == 0:
+                self.__run = False
+                print('GAME OVER 😈 !!')
+                return
 
     def __del__(self):
-        self._end_game()
         print("BYE")
         util.show_cursor()

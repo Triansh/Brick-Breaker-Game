@@ -1,5 +1,7 @@
 from random import randrange
 
+import numpy as np
+
 from utils import config
 from objects.gameObject import MovingObject
 
@@ -40,7 +42,9 @@ class Ball(MovingObject):
 
     def move(self, **kwargs):
         self._handle_wall_reflection()
-        self.add_position(self.get_direction() * self.__sp_factor)
+        dir = self.get_direction()
+        # dir = 2 * dir / np.sqrt(np.sum(dir ** 2))
+        self.add_position(dir * self.__sp_factor)
 
     def _handle_wall_reflection(self):
         """
