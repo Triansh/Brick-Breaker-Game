@@ -48,3 +48,9 @@ class PaddleGrab(PowerUp):  # TODO
     def __init__(self, id, position):
         emoji = "🔱"
         super().__init__(id, position, emoji)
+
+
+class ShootingPaddle(PowerUp):  # TODO
+    def __init__(self, id, position):
+        emoji = "🔫"
+        super().__init__(id, position, emoji)

@@ -28,36 +28,34 @@ class Brick(GameObject):
         """
         This gives all the four coordinates of the brick
         """
-        _x, _y = self.get_position()
+        _x, _y = self._position
         _h, _w = self.get_shape()
         return [(_x, _y), (_x, _y + _h), (_x + _w, _y), (_x + _w, _y + _h)]
 
     def set_emoji(self, emoji="🚫"):
 
-        if not self.__class__.__name__ == "Brick":
+        if self.__class__.__name__ != "Brick":
             super().set_emoji(emoji=emoji)
             return
 
         if self.__level == 3:
-            emoji = "🟦"
+            self._emoji = "🟦"
         elif self.__level == 4:
-            emoji = '🟪'
+            self._emoji = '🟪'
         elif self.__level == 2:
-            emoji = "🟩"
+            self._emoji = "🟩"
         elif self.__level == 1:
-            emoji = "🟨"
-        super().set_emoji(emoji)
+            self._emoji = "🟨"
+        super().set_emoji(self._emoji)
 
     def reflect_obj(self, pos, direction):
         """
         This accounts for the reflection made when any object collides with brick
         """
-        self.__isRainbow = False
-
         _x, _y = pos
         _dx, _dy = direction
 
-        _bx, _by = self.get_position()
+        _bx, _by = self._position
         _h, _w = self.get_shape()
 
         if _by <= _y <= _by + _h and (_x <= _bx or _x >= _bx + _w):
@@ -70,10 +68,13 @@ class Brick(GameObject):
 
         return np.array([_dx, _dy])
 
-    def update(self):
+    def set_rainbow(self):
+        self.__isRainbow = False
+
+    def fluctuate(self):
         if not self.__isRainbow:
             return
-        self.set_level((self.get_level()) % 4 + 1)
+        self.set_level((self.__level % 4) + 1)
 
 
 class ExplosiveBrick(Brick):  # TODO
@@ -87,12 +88,24 @@ class ExplosiveBrick(Brick):  # TODO
 
 class UnBreakableBrick(Brick):
 
-    def __init__(self, id, position, shape, ufo=False):
-        self.__ufo = ufo
+    def __init__(self, id, position, shape):
         super().__init__(id=id, position=position, level=100000, shape=shape)
 
     def set_emoji(self, emoji="🚫"):
-        super().set_emoji(emoji='🛸' if self.__ufo else '🟫')
+        super().set_emoji(emoji='🟫')
+
+    def set_level(self, level):
+        return
+
+
+class UFOBrick(Brick):
+    def __init__(self, id, position, shape, emoji):
+        super(UFOBrick, self).__init__(id=id, position=position, shape=shape, level=1000000)
+        self.set_emoji(emoji)
+
+    def set_emoji(self, emoji="🚫"):
+        self._emoji = emoji
+        self._make_rep()
 
     def set_level(self, level):
         return

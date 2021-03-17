@@ -3,7 +3,7 @@ from random import randrange
 import numpy as np
 
 from utils import config, patterns
-from objects.brick import Brick, ExplosiveBrick, UnBreakableBrick
+from objects.brick import Brick, ExplosiveBrick, UnBreakableBrick, UFOBrick
 
 
 class BrickWall:
@@ -16,7 +16,7 @@ class BrickWall:
         next_explodes : list((Brick, frame)) : The brick must be destroyed in this frame
         matrix : list(String) : Design of brick wall
         """
-        self.__counter = self.__total_bricks = 0
+        self.__counter = self.__total_bricks = self.__time = 0
         self.__stage = 0
         self.__bricks = self.__next_explodes = []
         self.__position = patterns.LAYOUTS[self.__stage][1]
@@ -30,18 +30,19 @@ class BrickWall:
         # if self.__stage == 2:
         #     sys.exit()
         self.__make_structure()
+        self.__time = 0
 
     def get_stage(self):
         return self.__stage
 
-    def get_max_bricks(self):
-        return self.__total_bricks
+    # def get_max_bricks(self):
+    #     return self.__total_bricks
 
     def get_all_bricks(self):
         return self.__bricks + [x[0] for x in self.__next_explodes]
 
-    def get_destroyed_bricks(self):
-        return self.get_max_bricks() - self.get_count_bricks()
+    # def get_destroyed_bricks(self):
+    #     return self.get_max_bricks() - self.get_count_bricks()
 
     def get_count_bricks(self):
         return sum([1 for x in self.__bricks if x.__class__.__name__ != "UnBreakableBrick"])
@@ -94,19 +95,36 @@ class BrickWall:
         Function to construct the design of wall
         """
         self.__bricks = []
-        _shape = (1, 4) if self.__stage == config.STAGES else (2, 4)
         y = 0
+        _shape = (2, 4)
         for i in range(len(self.__matrix)):
             x = 0
             for j in range(len(self.__matrix[i])):
                 x = self.__set_character(self.__matrix[i][j], x, y)
-            y += _shape[0]
+            y += 1 if self.__stage == config.STAGES - 1 else _shape[0]
         self.__total_bricks += len(self.__bricks)
+        return
 
     def __set_character(self, ch, x, y):
         """
         How the bricks are placed in layout
         """
+        if self.__stage == config.STAGES - 1:
+            _shape = (1, 2)
+            if ch in ['A', 'F', 'C']:
+                _pos = np.array([x, y]) + self.__position
+                emoji = '🛸'
+                if ch == 'F':
+                    emoji = '🛸'
+                elif ch == 'A':
+                    emoji = '👽'
+                elif ch == 'C':
+                    emoji = '🔵'
+                self.__bricks.append(
+                    UFOBrick(id=self.__counter, position=_pos, shape=_shape, emoji=emoji))
+            x += _shape[1]
+            return x
+
         _shape = (2, 4)
         if ch == '0':
             x += 4
@@ -119,15 +137,11 @@ class BrickWall:
 
             if ch in ['E', 'P']:
                 new_brick = ExplosiveBrick(id=self.__counter, position=_pos, shape=_shape)
-            elif ch == 'U':
-                # _shape = (1, 3)
-                new_brick = UnBreakableBrick(id=self.__counter, position=_pos, shape=_shape,
-                                             ufo=True)
             else:
                 if randrange(15) >= 2:
                     new_brick = Brick(id=self.__counter, position=_pos, shape=_shape,
                                       level=randrange(1, config.BRICK_TYPES + 1),
-                                      rainbow=randrange(15) < 2)
+                                      rainbow=True if randrange(25) < 2 else False)
                 else:
                     new_brick = UnBreakableBrick(id=self.__counter, position=_pos, shape=_shape)
             self.__bricks.append(new_brick)
@@ -135,6 +149,7 @@ class BrickWall:
             x += _shape[1]
         return x
 
-    def update_bricks(self):
+    def fluctuate_bricks(self):
         for brick in self.__bricks:
-            brick.update()
+            brick.fluctuate()
+        self.__time += 1

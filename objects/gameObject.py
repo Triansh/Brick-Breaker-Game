@@ -12,33 +12,35 @@ class GameObject:
         shape : tuple -> (height, width) or (row, col)
         rep : How the object is represented in game using emojis
         """
-        self.__position = position
+        self._emoji = emoji
+        self._position = position
         self.__shape = shape
-        self.__rep: np.array
-        self.__emoji: str
+        self.__rep = np.full(self.__shape, '')
         self.set_emoji(emoji=emoji)
 
     def get_position(self):
-        return self.__position
+        return self._position
 
     def set_position(self, position):
-        self.__position = position
+        self._position = position
         self._fix_position()
 
     def add_position(self, position):
-        self.__position += position
+        self._position += position
         self._fix_position()
+        # print(self._position,self.get_shape())
 
     def _fix_position(self):
-        _x, _y = self.get_position()
+        _x, _y = self._position
         _h, _w = self.get_shape()
         _fix_x = min(max(0, _x), config.SCREEN_WIDTH - _w)
         _fix_y = min(max(0, _y), config.SCREEN_HEIGHT - _h)
-        self.__position = np.array([_fix_x, _fix_y], dtype=float)
+        # print(config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
+        self._position = np.array([_fix_x, _fix_y], dtype=float)
 
     def get_center(self):
         _h, _w = self.__shape
-        return self.__position + np.array([_w - 1, _h - 1]) / 2
+        return self._position + np.array([_w - 1, _h - 1]) / 2
 
     def get_shape(self):
         return self.__shape
@@ -49,17 +51,17 @@ class GameObject:
         self._make_rep()
 
     def get_emoji(self):
-        return self.__emoji
+        return self._emoji
 
     def set_emoji(self, emoji):
-        self.__emoji = emoji
+        self._emoji = emoji
         self._make_rep()
 
     def _make_rep(self):
         _block = np.full(self.__shape, ' ')
         for i in range(self.__shape[0]):
             for j in range(self.__shape[1]):
-                _block[i, j] = self.__emoji if j % 2 == 0 else ''
+                _block[i, j] = self._emoji if j % 2 == 0 else ''
         self.__rep = _block
 
     def get_rep(self):
@@ -74,21 +76,21 @@ class MovingObject(GameObject):
         """
         direction is the amount by which the ball moves in [x, y] direction
         """
-        self.__direction = direction
+        self._direction = direction
         super().__init__(position=position, emoji=emoji, shape=shape)
 
     def get_direction(self):
-        return self.__direction
+        return self._direction
 
     def set_direction(self, direction):
-        self.__direction = direction
+        self._direction = direction
         self._fix_direction()
 
     def _fix_direction(self):
-        self.__direction[0] = max(min(self.__direction[0], config.MAX_VELOCITY),
-                                  -config.MAX_VELOCITY)
-        self.__direction[1] = max(min(self.__direction[1], config.MAX_VELOCITY),
-                                  -config.MAX_VELOCITY)
+        self._direction[0] = max(min(self._direction[0], config.MAX_VELOCITY),
+                                 -config.MAX_VELOCITY)
+        self._direction[1] = max(min(self._direction[1], config.MAX_VELOCITY),
+                                 -config.MAX_VELOCITY)
 
     def move(self, **kwargs):
         """

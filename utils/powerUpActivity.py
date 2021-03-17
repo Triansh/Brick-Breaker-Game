@@ -15,6 +15,9 @@ class PowerUpActivity:
         self.__duration = util.seconds_to_frames(10)
         self.__active = False
 
+    def is_active(self):
+        return self.__active
+
     def activate(self, **kwargs):
         self.__time = self.__duration
         self.__active = True
@@ -95,4 +98,19 @@ class ThruBallActivity(PowerUpActivity):
             ball.set_thru(False)
             emoji = config.BALLS[randrange(len(config.BALLS))]
             ball.set_emoji(emoji)
+        super().deactivate(**kwargs)
+
+
+class ShootingActivity(PowerUpActivity):
+    def __init__(self):
+        super().__init__()
+
+    def activate(self, **kwargs):
+        _paddle = kwargs['paddle']
+        _paddle.set_shooter_mode(True)
+        super().activate(**kwargs)
+
+    def deactivate(self, **kwargs):
+        _paddle = kwargs['paddle']
+        _paddle.set_shooter_mode(False)
         super().deactivate(**kwargs)

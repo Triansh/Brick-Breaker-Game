@@ -1,8 +1,11 @@
 import time
 from random import randrange
 import numpy as np
+import sys
+import copy
 
 from objects.ball import Ball
+from objects.bullet import Bullet
 from objects.paddle import Paddle
 from screen import Screen
 from utils.powerupHandler import PowerUpHandler
@@ -21,6 +24,8 @@ class Game:
                                shape=config.PADDLE_SHAPE)
         self.__brick_wall = BrickWall()
         self.__power_ups = []
+        self.__bullets = []
+
         self.__power_up_handler = PowerUpHandler()
         self.__keys = KBHit()
 
@@ -43,29 +48,38 @@ class Game:
 
             self.__score += config.SCORE_FACTOR * self.__brick_wall.explode_bricks(
                 self.__frames_count)
+
             self._detect_collisions()
+            self.shoot_bullets()
 
             self._update_power_up_time()
             self._reset_ball_positions()
 
-            t1 = time.time() - t
-
             self.draw_objects()
-            t2 = time.time() - t1 - t
             self.__screen.show(self.__frames_count, self.__lives, self.__score,
                                self.__brick_wall.get_count_bricks())
 
             self.__frames_count += 1
 
+            # if (self.__frames_count % (config.FPS // 1)) == 0:
+            #     print('hi')
+            self.__brick_wall.fluctuate_bricks()
+
             self._check_life_lost()
             self._manage_key_hits()
 
-            z += 1 if (time.time() - t < config.DELAY is True) else 0
-            ftime = time.time() - t - t1 - t2
-            print(f"{t1} {t2} {ftime} {z}")
-            time.sleep(max(config.DELAY - ftime, 0))
-            if self.__frames_count % 20 == 0:
-                self.__brick_wall.update_bricks()
+            z += 0 if (config.DELAY - (time.time() - t) >= 0) else 1
+            print(f"{z} {config.DELAY - (time.time() - t)}")
+            time.sleep(max(config.DELAY - (time.time() - t), 0))
+
+    def shoot_bullets(self):
+        if self.__power_up_handler.is_power_up_active("ShootingPaddle"):
+            if (self.__frames_count % (config.FPS // 1)) == 0:
+                _px, _py = self.__paddle.get_position()
+                _ph, _pw = self.__paddle.get_shape()
+                coords = [np.array([_px, _py - 1]), np.array([_px + _pw - 1, _py - 1])]
+                for cd in coords:
+                    self.__bullets.append(Bullet(id=self.__counter, position=cd))
 
     def draw_objects(self):
         for brick in self.__brick_wall.get_all_bricks():
@@ -75,17 +89,21 @@ class Game:
         self.__screen.draw(self.__paddle)
         for power_up in self.__power_ups:
             self.__screen.draw(power_up)
+        for bullet in self.__bullets:
+            self.__screen.draw(bullet)
 
     def _move_paddle(self, ch):
+        old_pos = copy.copy(self.__paddle.get_position())
+        # print(old_pos)
         self.__paddle.move(ch=ch)
-        _ph, _pw = self.__paddle.get_shape()
-        _px, _py = self.__paddle.get_position()
+        new_pos = self.__paddle.get_position()
+        # print(new_pos)
         for ball in self.__balls:
-            _bx, _by = ball.get_position()
-            _bw, _bh = ball.get_shape()
-            if (not ball.is_released()) and (
-                    _px <= _bx + _bw and _bx <= _px + _px and _by + 1 == _py):
-                ball.add_position(self.__paddle.get_direction() * (1 if ch == 'd' else -1))
+            if not ball.is_released():
+                # print(new_pos , old_pos)
+                # time.sleep(5)
+                ball.add_position(new_pos - old_pos)
+                # ball.add_position(self.__paddle.get_direction() * (1 if ch == 'd' else -1))
 
     def _reset_ball_positions(self):  # TODO
         _ph, _pw = self.__paddle.get_shape()
@@ -93,8 +111,7 @@ class Game:
         for ball in self.__balls:
             _bx, _by = ball.get_position()
             _bw, _bh = ball.get_shape()
-            if not (ball.is_released() or (
-                    _px <= _bx + _bw and _bx <= _px + _pw and _by + 1 == _py)):
+            if not (ball.is_released() or self._check_collisions(self.__paddle, ball, True)):
                 _new_pos = self.__paddle.get_position() + np.array([randrange(1, _pw - 1), - 1])
                 ball.set_position(_new_pos)
 
@@ -129,6 +146,18 @@ class Game:
                 to_remove.append(obj)
         return [b for b in objs if b not in to_remove]
 
+    @staticmethod
+    def _check_collisions(collider, obj, on_top=False):
+        _xb, _yb = obj.get_position()
+        _hb, _wb = obj.get_shape()
+
+        _xp, _yp = collider.get_position()
+        _hp, _wp = collider.get_shape()
+
+        if on_top:
+            return _xp < _xb + _wb and _xb < _xp + _wp and _yb + _hb - 1 == _yp - 1
+        return _yp < _yb + _hb and _yb < _yp + _hp and _xp < _xb + _wb and _xb < _xp + _wp
+
     def _detect_collisions(self):
 
         self._detect_power_up_paddle_collisions()
@@ -142,21 +171,31 @@ class Game:
                 if not self._detect_brick_collisions(ball):  # TODO
                     ball.move()
 
+        self.detect_bullet_wall_collisions()
+        to_remove = []
+        for bullet in self.__bullets:
+            for brick in self.__brick_wall.get_all_bricks():
+                if self._check_collisions(brick, bullet):
+                    to_remove.append(bullet)
+                    self.dec_strength_of_brick(brick)
+                    break
+        self.__bullets = [x for x in self.__bullets if x not in to_remove]
+        for bullet in self.__bullets:
+            bullet.move()
+
+    def detect_bullet_wall_collisions(self):
+        to_remove = []
+        for bullet in self.__bullets:
+            if bullet.get_position()[0] <= 0:
+                to_remove.append(bullet)
+        self.__bullets = [x for x in self.__bullets if x not in to_remove]
+
     def _update_power_up_time(self):
         self.__power_up_handler.update_power_ups(balls=self.__balls, paddle=self.__paddle)
 
-    def _check_paddle_collisions(self, obj):
-        _xb, _yb = obj.get_position()
-        _hb, _wb = obj.get_shape()
-
-        _xp, _yp = self.__paddle.get_position()
-        _hp, _wp = self.__paddle.get_shape()
-
-        return _yp <= _yb and _xp <= _xb + _wb and _xb <= _xp + _wp
-
     def _detect_ball_paddle_collisions(self, ball):
 
-        if (not ball.is_released()) or (not self._check_paddle_collisions(ball)):
+        if (not ball.is_released()) or (not self._check_collisions(self.__paddle, ball)):
             return
 
         _xb, _yb = ball.get_position()
@@ -177,7 +216,7 @@ class Game:
     def _detect_power_up_paddle_collisions(self):
         to_remove = []
         for power_up in self.__power_ups:
-            if self._check_paddle_collisions(power_up):
+            if self._check_collisions(self.__paddle, power_up):
                 name = power_up.__class__.__name__
                 if name == "BallMultiplier":
                     self._multiply_balls()
@@ -238,13 +277,9 @@ class Game:
                 _prev_pos = curr_pos - (_dir / f)
 
                 for index, brick in enumerate(c_bricks):
-
                     _next_dir = brick.reflect_obj(_prev_pos, _dir)
                     _final_dir[index] = _next_dir
-                    brick.set_level(brick.get_level() - 1)
-                    if brick.get_level() == 0:
-                        self._destroy_and_check_for_power_up(brick)
-
+                    self.dec_strength_of_brick(brick)
                 ball.set_direction(_final_dir[0])
                 return False
 
@@ -252,6 +287,12 @@ class Game:
             self._destroy_and_check_for_power_up(brick)
 
         return False
+
+    def dec_strength_of_brick(self, brick):
+        brick.set_rainbow()
+        brick.set_level(brick.get_level() - 1)
+        if brick.get_level() == 0:
+            self._destroy_and_check_for_power_up(brick)
 
     def _destroy_and_check_for_power_up(self, brick):
         _pos = brick.get_position()

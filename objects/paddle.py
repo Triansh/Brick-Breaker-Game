@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 
 from utils import config
@@ -13,6 +15,7 @@ class Paddle(MovingObject):
         shape_decider: Integer -> {-1,0,1} : Which shape paddle must take
         """
         self.__grabber_mode = False
+        self.__shooter_mode = False
         self.__shape_decider = 0
         self.__paddle_shapes = config.PADDLE_SHAPES
         _dir = config.PADDLE_VELOCITY
@@ -44,6 +47,13 @@ class Paddle(MovingObject):
         self.__grabber_mode = mode
         self.set_emoji()
 
+    def has_shooter_mode(self):
+        return self.__shooter_mode
+
+    def set_shooter_mode(self, mode: bool):
+        self.__shooter_mode = mode
+        self.set_emoji()
+
     def set_emoji(self, emoji="🧱"):
         if self.__shape_decider == -1:
             emoji = '😖'
@@ -52,16 +62,18 @@ class Paddle(MovingObject):
         super().set_emoji(emoji=emoji)
 
     def _make_rep(self):
-        if not self.__grabber_mode:
-            super()._make_rep()
-            return
 
         _shape = self.get_shape()
         _emoji = self.get_emoji()
         _block = np.full(_shape, ' ')
+
         for i in range(_shape[0]):
-            _block[i, 0], _block[i, 1] = '🧲', ''
-            for j in range(2, _shape[1] - 2):
+            for j in range(_shape[1]):
                 _block[i, j] = _emoji if j % 2 == 0 else ''
-            _block[i, -2], _block[i, -1] = '🧲', ''
+            if self.__grabber_mode:
+                _block[i, 0], _block[i, 1] = '🧲', ''
+                _block[i, -2], _block[i, -1] = '🧲', ''
+
+        if self.__shooter_mode:
+            _block[0, 0], _block[0, 1] = _block[0, -2], _block[0, -1] = '💄', ''
         self.set_rep(_block)

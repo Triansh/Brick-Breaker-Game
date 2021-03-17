@@ -17,7 +17,7 @@ def show_cursor():
 
 
 def seconds_to_frames(sec):
-    frame_rate = 1 / config.DELAY
+    frame_rate = config.FPS
     return round(sec * frame_rate)
 
 
