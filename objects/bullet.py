@@ -14,3 +14,16 @@ class Bullet(MovingObject):
 
     def move(self, **kwargs):
         self._position += self._direction
+
+
+class UFOBomb(MovingObject):
+
+    def __init__(self, id, position):
+        self.__id = id
+        emoji = '🧨'
+        shape = (1, 2)
+        direction = np.array([0, 1])
+        super().__init__(position=position, emoji=emoji, shape=shape, direction=direction)
+
+    def move(self, **kwargs):
+        self._position += self._direction

@@ -32,7 +32,7 @@ class Screen:
         _x, _y = round(_x), round(_y)
         self.__display[_y:_y + _h, _x:_x + _w] = display
 
-    def __get_top_bar(self, frames, lives, score, bricks):
+    def __get_top_bar(self, frames, lives, score, bricks, plives, shoot_dur):
         """
         Designing of Top Bar
         """
@@ -40,24 +40,34 @@ class Screen:
 
         single_x = "".join(config.BARRIER_STYLE) + 'X'
         single_sp = "".join(_style) + ' '
-        item_1 = [
-            "".join(_style) + f"  💕 Lives : {lives}",
-            "".join(_style) + f"⏰ Time  : {util.frames_to_time(frames)}  "]
-        item_2 = [
-            "".join(_style) + f"  🌟 Score : {score}",
-            "".join(_style) + f"🧱 Bricks: {bricks}  "]
+        items = [
+            [
+                "".join(_style) + f"  💕 Lives : {lives}",
+                "".join(_style) + f"⏰ Time  : {util.frames_to_time(frames)}  "
+            ],
+            [
+                "".join(_style) + f"  🌟 Score : {score}",
+                "".join(_style) + f"🧱 Bricks: {bricks}  "
+            ],
+            [
+                "".join(_style) + f"  💓 Paddle Lives : {plives}",
+                "".join(_style) + f"🎯 Shooting Duration: {shoot_dur}  "
+            ],
+        ]
 
-        row = ['', '', '', '']
-        row[0] = row[3] = single_x * (self.__width + 2)
-        row[1] = single_x + item_1[0] + single_sp * (
-                16 + self.__width - len(item_1[0]) - len(item_1[1])) + item_1[1] + single_x
-        row[2] = single_x + item_2[0] + single_sp * (
-                16 + self.__width - len(item_2[0]) - len(item_2[1])) + item_2[1] + single_x
+        row = [''] * (len(items) + 2)
+        row[0] = row[len(items) + 1] = single_x * (self.__width + 2)
+        for i in range(len(items)):
+            row[i + 1] = single_x + items[i][0] + single_sp * (
+                    16 + self.__width - len(items[i][0]) - len(items[i][1])) + items[i][
+                             1] + single_x
+            # row[2 * i + 2] = single_x + item_2[0] + single_sp * (
+            #         16 + self.__width - len(item_2[0]) - len(item_2[1])) + item_2[1] + single_x
 
         top_bar = "\n".join(x for x in row) + '\n'
         return top_bar
 
-    def show(self, frames, lives, score, bricks):
+    def show(self, frames, lives, score, bricks, plives, shoot_dur):
         _w = self.__width
         for index, a in enumerate(self.__display):
             a = list(a)
@@ -75,7 +85,7 @@ class Screen:
         finalOutput = ""
         finalOutput += "".join(config.BACKGROUND_STYLE)
 
-        finalOutput += self.__get_top_bar(frames, lives, score, bricks) + \
+        finalOutput += self.__get_top_bar(frames, lives, score, bricks, plives, shoot_dur) + \
                        "\n".join((
                            (single_x + "".join(x) + single_x) for x in self.__display
                        )) + '\n'

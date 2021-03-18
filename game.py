@@ -8,9 +8,11 @@ from objects.ball import Ball
 from objects.bullet import Bullet
 from objects.paddle import Paddle
 from screen import Screen
+
 from utils.powerupHandler import PowerUpHandler
 from utils.brickwall import BrickWall
 from utils.kBHit import KBHit
+from utils.ufo import UFO
 from utils import util, config
 
 
@@ -22,9 +24,11 @@ class Game:
         self.__balls = [Ball(id=0, position=config.BALL_POSITION)]
         self.__paddle = Paddle(position=config.PADDLE_POSITION, emoji="🧱",
                                shape=config.PADDLE_SHAPE)
-        self.__brick_wall = BrickWall()
         self.__power_ups = []
         self.__bullets = []
+
+        self.__brick_wall = BrickWall()
+        self.__ufo = UFO()
 
         self.__power_up_handler = PowerUpHandler()
         self.__keys = KBHit()
@@ -32,6 +36,7 @@ class Game:
         self.__boss_mode = False
 
         self.__lives = config.LIVES
+        self.__plives = config.PADDLE_LIVES
         self.__frames_count = 0
         self.__score = 0
 
@@ -49,7 +54,10 @@ class Game:
             self.__score += config.SCORE_FACTOR * self.__brick_wall.explode_bricks(
                 self.__frames_count)
 
+            self.handle_ufo()
+
             self._detect_collisions()
+            self.move_objects()
             self.shoot_bullets()
 
             self._update_power_up_time()
@@ -57,24 +65,36 @@ class Game:
 
             self.draw_objects()
             self.__screen.show(self.__frames_count, self.__lives, self.__score,
-                               self.__brick_wall.get_count_bricks())
+                               self.__brick_wall.get_count_bricks(), self.__plives,
+                               self.__power_up_handler.get_power_up_duration("ShootingPaddle"))
 
             self.__frames_count += 1
 
-            # if (self.__frames_count % (config.FPS // 1)) == 0:
-            #     print('hi')
             self.__brick_wall.fluctuate_bricks()
 
             self._check_life_lost()
             self._manage_key_hits()
 
             z += 0 if (config.DELAY - (time.time() - t) >= 0) else 1
-            print(f"{z} {config.DELAY - (time.time() - t)}")
+            print(f"{z} {config.DELAY - (time.time() - t)} {self.__ufo._time}")
             time.sleep(max(config.DELAY - (time.time() - t), 0))
+
+    def handle_ufo(self):
+        if self.__boss_mode:
+            self.__ufo.drop_bomb()
+            self.detect_bomb_paddle_collisions()
+
+    def detect_bomb_paddle_collisions(self):
+        to_remove = []
+        for bomb in self.__ufo.get_bombs():
+            if self._check_collisions(self.__paddle, bomb):
+                self.__plives -= 1
+                to_remove.append(bomb)
+        self.__ufo.set_bombs([x for x in self.__ufo.get_bombs() if x not in to_remove])
 
     def shoot_bullets(self):
         if self.__power_up_handler.is_power_up_active("ShootingPaddle"):
-            if (self.__frames_count % (config.FPS // 1)) == 0:
+            if (self.__frames_count % config.SHOOT_BULLET_TIME) == 0:
                 _px, _py = self.__paddle.get_position()
                 _ph, _pw = self.__paddle.get_shape()
                 coords = [np.array([_px, _py - 1]), np.array([_px + _pw - 1, _py - 1])]
@@ -92,18 +112,22 @@ class Game:
         for bullet in self.__bullets:
             self.__screen.draw(bullet)
 
+        if self.__boss_mode:
+            for ufo in self.__ufo.get_all_bricks():
+                self.__screen.draw(ufo)
+            for bomb in self.__ufo.get_bombs():
+                self.__screen.draw(bomb)
+
     def _move_paddle(self, ch):
         old_pos = copy.copy(self.__paddle.get_position())
-        # print(old_pos)
         self.__paddle.move(ch=ch)
         new_pos = self.__paddle.get_position()
-        # print(new_pos)
         for ball in self.__balls:
             if not ball.is_released():
-                # print(new_pos , old_pos)
-                # time.sleep(5)
                 ball.add_position(new_pos - old_pos)
-                # ball.add_position(self.__paddle.get_direction() * (1 if ch == 'd' else -1))
+
+        if self.__boss_mode:
+            self.__ufo.shift_wall(int((new_pos - old_pos)[0]))
 
     def _reset_ball_positions(self):  # TODO
         _ph, _pw = self.__paddle.get_shape()
@@ -159,29 +183,34 @@ class Game:
         return _yp < _yb + _hb and _yb < _yp + _hp and _xp < _xb + _wb and _xb < _xp + _wp
 
     def _detect_collisions(self):
-
         self._detect_power_up_paddle_collisions()
-        for power_up in self.__power_ups:
-            power_up.move()
+        self.detect_bullet_wall_collisions()
 
         for ball in self.__balls:
             if ball.is_released():
-                self._detect_ball_paddle_collisions(ball)
+                self._detect_ball_paddle_collisions(ball)  # Ball Paddle Collisions
             if ball.is_released():
-                if not self._detect_brick_collisions(ball):  # TODO
-                    ball.move()
+                if not self._detect_brick_collisions(ball):  # Brick Ball Collisions
+                    ball.move()  # Move balls
 
-        self.detect_bullet_wall_collisions()
         to_remove = []
         for bullet in self.__bullets:
             for brick in self.__brick_wall.get_all_bricks():
-                if self._check_collisions(brick, bullet):
+                if self._check_collisions(brick, bullet):  # Brick bullet Collisions
                     to_remove.append(bullet)
                     self.dec_strength_of_brick(brick)
                     break
         self.__bullets = [x for x in self.__bullets if x not in to_remove]
+
+    def move_objects(self):
+        for power_up in self.__power_ups:
+            power_up.move()
         for bullet in self.__bullets:
             bullet.move()
+
+        if self.__boss_mode:
+            for bomb in self.__ufo.get_bombs():
+                bomb.move()
 
     def detect_bullet_wall_collisions(self):
         to_remove = []
@@ -195,8 +224,10 @@ class Game:
 
     def _detect_ball_paddle_collisions(self, ball):
 
-        if (not ball.is_released()) or (not self._check_collisions(self.__paddle, ball)):
+        if not (ball.is_released() and self._check_collisions(self.__paddle, ball)):
             return
+
+        self.__brick_wall.shift_wall()
 
         _xb, _yb = ball.get_position()
         _vx, _vy = ball.get_direction()
@@ -311,6 +342,7 @@ class Game:
         self.__brick_wall.increment_stage()
         if self.__brick_wall.get_stage() == config.STAGES - 1:
             self.__boss_mode = True
+            self.__ufo.set_time(0)
         return False
 
     def reset_all(self):
@@ -323,6 +355,8 @@ class Game:
     def _check_life_lost(self):
         self.__balls = self._remove_objects_after_missing_paddle(self.__balls)
         self.__power_ups = self._remove_objects_after_missing_paddle(self.__power_ups)
+        if self.__boss_mode:
+            self.__ufo.set_bombs(self._remove_objects_after_missing_paddle(self.__ufo.get_bombs()))
 
         if (self.__boss_mode is False) and self.__brick_wall.get_count_bricks() == 0:
             self.reset_all()
@@ -334,9 +368,21 @@ class Game:
             self.reset_all()
             self.__lives -= 1
             if self.__lives == 0:
-                self.__run = False
-                print('GAME OVER 😈 !!')
+                self.game_over()
                 return
+        if self.__plives == 0:
+            self.game_over()
+            return
+
+        _py = self.__paddle.get_position()[1]
+        for brick in self.__brick_wall.get_all_bricks():
+            if _py <= brick.get_position()[1] + brick.get_shape()[0]:
+                self.game_over()
+                return
+
+    def game_over(self):
+        self.__run = False
+        print('GAME OVER 😈 !!')
 
     def __del__(self):
         print("BYE")

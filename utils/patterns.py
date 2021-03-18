@@ -6,56 +6,54 @@ LAYOUTS = [
 
     (
         [
-            # '00LLLLLLLELLLLLLL00',
+            '00LLLLLLLELLLL0000',
             '00LEEEEEEELLLLLLL00',
             '00LLLLLLLEEEEEEEL00',
-            # '00LLLLLLLELLLLLLL00',
+            '000S00LLLLELLLLLLL0',
         ],
         np.array([config.SCREEN_WIDTH // 2 - 55, 4])
     ),
 
     (
         [
-            '11111SSLLEEEEELLSS11111',
-            '1P100SSSSSSSSSSSSS00111',
-            # '1P100LLLLLLELLLLLL001P1',
-            '1P100LLLLLLELLLLLL001P1',
-            '1P100LLEEEEEEEEELL001P1',
-            '1P100LLLLLLSLLLLLL001P1',
-            '1P100LLLLLLSLLLLLL001P1',
-            '11100SSSSSSSSSSSSS001P1',
-            '11111SSSSSSSSSSSSS11111',
+            '1111SSLLEEEEELLSS1111',
+            '1P00SSSSSSSSSSSSS00P1',
+            '1P00LLLLLLELLLLLL00P1',
+            '1P00LLEEEEEEEEELL00P1',
+            '1P00LLLLLLSLLLLLL00P1',
+            '1P00LLLLLLSLLLLLL00P1',
+            '1P00SSSSSSSSSSSSS00P1',
+            '1111SSSSSSSSSSSSS1111',
         ],
-        np.array([config.SCREEN_WIDTH // 2 - 65, 4])
+        np.array([config.SCREEN_WIDTH // 2 - 55, 4])
     ),
 
     (
         [
-            '000000FFFF00000',
-            '00000F0000F0000',
-            '0000F00AA00F000',
-            '0000F0AAAA0F000',
-            '0000F000000F000',
-            '000FFFFFFFFFF00',
-            '00F0000000000F0',
-            '0F00CC0000CC00F',
+            'LLLLLLLLLLLLLLLLLLLLLLLL',
+        ],
+        np.array([8, 19])
+    ),
+
+    (
+        [
+            'GGGGGGGGGGGGGGGG',
+            '0000000000000000',
+            '000000FFFF000000',
+            '00000F0000F00000',
+            '0000F00AA00F0000',
+            '0000F0AAAA0F0000',
+            '0000F000000F0000',
+            '000FFFFFFFFFF000',
+            '00F0000000000F00',
+            '0F00CC0000CC00F0',
             'F00C00C00C00C00F',
             'F00000000000000F',
             '0FFFFFFFFFFFFFF0',
-            '00000F0000F0000',
-            '000000FFFF000',
-
-            # '00000000UU0000000',
-            # '0000000UUUU000000',
-            # '000000UUUUUU000000',
-            # '00000UUUUUUUU00000',
-            # '0000UUUUUUUUUU0000',
-            # '000UUUUU00UUUUU00',
-            # '000UUUUU00UUUUU00',
-            # '0000000U00U00000000',
-            # '0000000U00U00000000',
+            '00000F0000F00000',
+            '000000FFFF000000',
         ],
-        np.array([config.PADDLE_POSITION[0] - 14, 3])
+        config.UFO_POSITION
     ),
 
 ]

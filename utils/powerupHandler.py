@@ -40,7 +40,7 @@ class PowerUpHandler:
         if prob > config.POWER_UP_CHANCE:
             return None
 
-        _type = randrange(6, 7)
+        _type = randrange(7)
         self.__counter += 1
         if _type == 6:
             return ShootingPaddle(self.__counter, position)
@@ -75,3 +75,6 @@ class PowerUpHandler:
         index = self.__map(name)
         return self.__power_ups_activity[index].is_active()
 
+    def get_power_up_duration(self, name):
+        index = self.__map(name)
+        return self.__power_ups_activity[index].get_duration()

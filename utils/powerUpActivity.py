@@ -15,6 +15,9 @@ class PowerUpActivity:
         self.__duration = util.seconds_to_frames(10)
         self.__active = False
 
+    def get_duration(self):
+        return self.__time
+
     def is_active(self):
         return self.__active
 
