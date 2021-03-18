@@ -4,13 +4,23 @@ from objects.brick import UFOBrick
 from objects.bullet import UFOBomb
 from utils.brickwall import BrickWall
 from utils import config
+from utils.healthbar import HealthBar
 
 
 class UFO(BrickWall):
 
     def __init__(self):
         self.__bombs = []
+        self._health = HealthBar(config.UFO_POSITION - np.array([0, 1]))
+        self.__health_bar = ['']
         super().__init__(stage=config.STAGES)
+
+    def dec_life(self):
+        if self._health.get_lives() > 0:
+            self._health.dec_lives()
+
+    def get_lives(self):
+        return self._health.get_lives()
 
     def _set_character(self, ch, x, y):
         _shape = (1, 2)
@@ -34,6 +44,9 @@ class UFO(BrickWall):
             x += 2
             return x
 
+    def get_health(self):
+        return self._health
+
     def _make_structure(self):
         self._bricks = []
         y = 0
@@ -49,6 +62,7 @@ class UFO(BrickWall):
         self._position += _pos
         for brick in self._bricks:
             brick.add_position(_pos)
+        self._health.add_position(_pos)
 
     def get_bombs(self):
         return self.__bombs

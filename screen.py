@@ -36,6 +36,11 @@ class Screen:
         """
         Designing of Top Bar
         """
+
+        shoot_dur /= config.FPS
+        shoot_dur = round(shoot_dur, 1)
+
+
         _style = config.TEXT_STYLE
 
         single_x = "".join(config.BARRIER_STYLE) + 'X'

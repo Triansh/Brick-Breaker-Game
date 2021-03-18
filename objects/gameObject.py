@@ -14,8 +14,8 @@ class GameObject:
         """
         self._emoji = emoji
         self._position = position
-        self.__shape = shape
-        self.__rep = np.full(self.__shape, '')
+        self._shape = shape
+        self.__rep = np.full(self._shape, '')
         self.set_emoji(emoji=emoji)
 
     def get_position(self):
@@ -39,14 +39,14 @@ class GameObject:
         self._position = np.array([_fix_x, _fix_y], dtype=float)
 
     def get_center(self):
-        _h, _w = self.__shape
+        _h, _w = self._shape
         return self._position + np.array([_w - 1, _h - 1]) / 2
 
     def get_shape(self):
-        return self.__shape
+        return self._shape
 
     def set_shape(self, shape):
-        self.__shape = shape
+        self._shape = shape
         self._fix_position()
         self._make_rep()
 
@@ -58,9 +58,9 @@ class GameObject:
         self._make_rep()
 
     def _make_rep(self):
-        _block = np.full(self.__shape, ' ')
-        for i in range(self.__shape[0]):
-            for j in range(self.__shape[1]):
+        _block = np.full(self._shape, ' ')
+        for i in range(self._shape[0]):
+            for j in range(self._shape[1]):
                 _block[i, j] = self._emoji if j % 2 == 0 else ''
         self.__rep = _block
 

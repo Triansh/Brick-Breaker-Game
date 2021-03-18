@@ -27,6 +27,7 @@ class PowerUpActivity:
 
     def deactivate(self, **kwargs):
         self.__active = False
+        self.__time = 0
 
     def update(self, **kwargs):
         if self.__active:

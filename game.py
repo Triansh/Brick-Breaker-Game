@@ -56,11 +56,14 @@ class Game:
 
             self.handle_ufo()
 
-            self._detect_collisions()
-            self.move_objects()
-            self.shoot_bullets()
+            self.__brick_wall.fluctuate_bricks()
 
             self._update_power_up_time()
+
+            self._detect_collisions()
+            self.shoot_bullets()
+            self.move_objects()
+
             self._reset_ball_positions()
 
             self.draw_objects()
@@ -69,8 +72,6 @@ class Game:
                                self.__power_up_handler.get_power_up_duration("ShootingPaddle"))
 
             self.__frames_count += 1
-
-            self.__brick_wall.fluctuate_bricks()
 
             self._check_life_lost()
             self._manage_key_hits()
@@ -117,6 +118,7 @@ class Game:
                 self.__screen.draw(ufo)
             for bomb in self.__ufo.get_bombs():
                 self.__screen.draw(bomb)
+            self.__screen.draw(self.__ufo.get_health())
 
     def _move_paddle(self, ch):
         old_pos = copy.copy(self.__paddle.get_position())
@@ -287,11 +289,17 @@ class Game:
         f = int(abs(_dir[0]) + abs(_dir[1]) + 1)
 
         c_bricks = []
+
+        is_ball_thru = ball.is_thru()
+        hit_ufo = False
+
         for idx in range(f + 1):
 
             curr_pos = _bc + (_dir * idx / f)
-
-            for brick in self.__brick_wall.get_all_bricks():
+            tot_bricks = self.__brick_wall.get_all_bricks()
+            if self.__boss_mode:
+                tot_bricks = tot_bricks + self.__ufo.get_all_bricks()
+            for brick in tot_bricks:
                 _x, _y = brick.get_position()
                 _h, _w = brick.get_shape()
 
@@ -301,8 +309,15 @@ class Game:
                                 _y <= curr_pos[1] + _radius[0] <= _y + _h)
                          or (_y <= curr_pos[1] - _radius[0] <= _y + _h)):
                     c_bricks.append(brick)
+                    if brick.__class__.__name__ == "UFOBrick":
+                        hit_ufo = True
+                        is_ball_thru = False
 
-            if (size := len(c_bricks)) > 0 and not ball.is_thru():
+            if (size := len(c_bricks)) > 0 and not is_ball_thru:
+
+                if hit_ufo:
+                    self.__ufo.dec_life()
+
                 _final_dir = np.zeros((size, 2))
 
                 _prev_pos = curr_pos - (_dir / f)
@@ -313,6 +328,9 @@ class Game:
                     self.dec_strength_of_brick(brick)
                 ball.set_direction(_final_dir[0])
                 return False
+
+        if hit_ufo:
+            self.__ufo.dec_life()
 
         for brick in c_bricks:
             self._destroy_and_check_for_power_up(brick)
@@ -326,6 +344,8 @@ class Game:
             self._destroy_and_check_for_power_up(brick)
 
     def _destroy_and_check_for_power_up(self, brick):
+        if brick.__class__.__name__ == "UFOBrick":
+            return
         _pos = brick.get_position()
         self.__score += config.SCORE_FACTOR * self.__brick_wall.destroy_brick(brick,
                                                                               self.__frames_count)
@@ -336,7 +356,9 @@ class Game:
 
     def change_stage(self):
         time.sleep(1)
-        if self.__brick_wall.get_stage() == config.STAGES:
+        self.reset_all()
+        self.__paddle.set_position(config.PADDLE_POSITION)
+        if self.__brick_wall.get_stage() == config.STAGES - 1:
             self.__run = False
             return True
         self.__brick_wall.increment_stage()
@@ -358,8 +380,9 @@ class Game:
         if self.__boss_mode:
             self.__ufo.set_bombs(self._remove_objects_after_missing_paddle(self.__ufo.get_bombs()))
 
-        if (self.__boss_mode is False) and self.__brick_wall.get_count_bricks() == 0:
-            self.reset_all()
+        print(self.__ufo.get_lives())
+        if ((not self.__boss_mode) and self.__brick_wall.get_count_bricks() == 0) \
+                or (self.__boss_mode and self.__ufo.get_lives() == 0):
             if self.change_stage():
                 self.__run = False
                 print('YOU WIN! 🥳🥳')

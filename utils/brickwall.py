@@ -131,8 +131,6 @@ class BrickWall:
         self._time += 1
 
     def shift_wall(self, val=1):
-        if self._time > config.TIME_ATTACK:
+        if self._time > config.TIME_ATTACK and (not config.STAGES - 1 == self._stage):
             for brick in self._bricks:
                 brick.add_position(np.array([0, val]))
-
-
