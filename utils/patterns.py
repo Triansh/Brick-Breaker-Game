@@ -32,22 +32,23 @@ LAYOUTS = [
         [
             'BLLBLLLBLLLBLLLBLLLBLLBL',
         ],
-        np.array([8, 19], dtype=float)
+        np.array([8, 18], dtype=float)
     ),
 
     (
         [
-            '0000000000000000',
-            '000000FFFF000000',
-            '00000F0000F00000',
-            '0000F0AAAA0F0000',
-            '0000F000000F0000',
-            '000FFFFFFFFFF000',
-            '00F0000000000F00',
-            '0F000000000000F',
-            '00FFFFFFFFFFFF00',
-            '00000F0000F00000',
-            '000000FFFF000000',
+            '000000FFFF00000',
+            '00000F0000F0000',
+            '0000F0AAAA0F000',
+            '0000F000000F000',
+            '000FFFFFFFFFF00',
+            '00F0000000000F0',
+            '0F00CC0000CC00F',
+            'F00C00C00C00C00F',
+            'F00000000000000F',
+            '0FFFFFFFFFFFFFF0',
+            '00000F0000F0000',
+            '000000FFFF000',
         ],
         config.UFO_POSITION
     ),
