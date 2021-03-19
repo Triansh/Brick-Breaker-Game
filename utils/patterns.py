@@ -45,7 +45,7 @@ LAYOUTS = [
             '000FFFFFFFFFF000',
             '00F0000000000F00',
             '0F000000000000F',
-            '0FFFFFFFFFFFFFF0',
+            '00FFFFFFFFFFFF00',
             '00000F0000F00000',
             '000000FFFF000000',
         ],

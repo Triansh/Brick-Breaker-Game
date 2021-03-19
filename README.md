@@ -36,6 +36,7 @@ the ground below the paddle.
 
 - <kbd>A</kbd>: Move paddle left
 - <kbd>D</kbd>: Move paddle right
+- <kbd>S</kbd>: Skip Level
 - <kbd>SPACE</kbd>: Release ball
 - <kbd>Q</kbd>: Quit Game
 

@@ -1,7 +1,6 @@
 import time
 from random import randrange
 import numpy as np
-import sys
 import copy
 
 from objects.ball import Ball
@@ -44,8 +43,7 @@ class Game:
         self._reset_ball_positions()
 
     def start(self):
-        print(config.DELAY)
-        z = 0
+        # z = 0
         while self.__run:
             t = time.time()
 
@@ -58,10 +56,10 @@ class Game:
 
             self.__brick_wall.fluctuate_bricks()
 
+            self.shoot_bullets()
             self._update_power_up_time()
 
             self._detect_collisions()
-            self.shoot_bullets()
             self.move_objects()
 
             self._reset_ball_positions()
@@ -76,8 +74,8 @@ class Game:
             self._check_life_lost()
             self._manage_key_hits()
 
-            z += 0 if (config.DELAY - (time.time() - t) >= 0) else 1
-            print(f"{z} {config.DELAY - (time.time() - t)} {self.__ufo._time}")
+            # z += 0 if (config.DELAY - (time.time() - t) >= 0) else 1
+            # print(f"{z} {config.DELAY - (time.time() - t)} {self.__ufo._time}")
             time.sleep(max(config.DELAY - (time.time() - t), 0))
 
     def handle_ufo(self):
@@ -162,13 +160,12 @@ class Game:
     def _remove_objects_after_missing_paddle(self, objs):
         _xp, _yp = self.__paddle.get_position()
         _hp, _wp = self.__paddle.get_shape()
-        _pcx, _pcy = self.__paddle.get_center()
 
         to_remove = []
         for obj in objs:
             _x, _y = obj.get_position()
             _h, _w = obj.get_shape()
-            if _y > _pcy and (_x > _xp + _wp or _x + _w < _xp):
+            if _y >= _yp + _hp:
                 to_remove.append(obj)
         return [b for b in objs if b not in to_remove]
 
@@ -200,7 +197,7 @@ class Game:
             for brick in self.__brick_wall.get_all_bricks():
                 if self._check_collisions(brick, bullet):  # Brick bullet Collisions
                     to_remove.append(bullet)
-                    self.dec_strength_of_brick(brick)
+                    self.dec_strength_of_brick(brick, bullet.get_direction())
                     break
         self.__bullets = [x for x in self.__bullets if x not in to_remove]
 

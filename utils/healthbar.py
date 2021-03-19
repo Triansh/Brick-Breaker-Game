@@ -1,7 +1,7 @@
 import numpy as np
 
 from objects.gameObject import GameObject
-from utils import patterns, config
+from utils import patterns
 
 
 class HealthBar(GameObject):
