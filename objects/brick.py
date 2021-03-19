@@ -66,7 +66,7 @@ class Brick(GameObject):
             _dx *= -1
             _dy *= -1
 
-        return np.array([_dx, _dy])
+        return np.array([_dx, _dy], dtype=float)
 
     def set_rainbow(self):
         self.__isRainbow = False

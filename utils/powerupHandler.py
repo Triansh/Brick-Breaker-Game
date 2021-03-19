@@ -34,7 +34,7 @@ class PowerUpHandler:
             return 4
         return None
 
-    def create_power_up(self, position):
+    def create_power_up(self, position, direction):
 
         prob = randrange(100)
         if prob > config.POWER_UP_CHANCE:
@@ -43,19 +43,19 @@ class PowerUpHandler:
         _type = randrange(7)
         self.__counter += 1
         if _type == 6:
-            return ShootingPaddle(self.__counter, position)
+            return ShootingPaddle(self.__counter, position, direction)
         if _type == 5:
-            return BallMultiplier(self.__counter, position)
+            return BallMultiplier(self.__counter, position, direction)
         elif _type == 3:
-            return ThruBall(self.__counter, position)
+            return ThruBall(self.__counter, position, direction)
         elif _type == 2:
-            return FastBall(self.__counter, position)
+            return FastBall(self.__counter, position, direction)
         elif _type == 4:
-            return PaddleGrab(self.__counter, position)
+            return PaddleGrab(self.__counter, position, direction)
         elif _type == 1:
-            return ExpandPaddle(self.__counter, position)
+            return ExpandPaddle(self.__counter, position, direction)
         elif _type == 0:
-            return ShrinkPaddle(self.__counter, position)
+            return ShrinkPaddle(self.__counter, position, direction)
         else:
             return None
 

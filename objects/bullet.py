@@ -9,7 +9,7 @@ class Bullet(MovingObject):
         self.__id = id
         emoji = '🗼'
         shape = (1, 2)
-        direction = np.array([0, -1])
+        direction = np.array([0, -1], dtype=float)
         super().__init__(position=position, emoji=emoji, shape=shape, direction=direction)
 
     def move(self, **kwargs):
@@ -22,7 +22,8 @@ class UFOBomb(MovingObject):
         self.__id = id
         emoji = '🧨'
         shape = (1, 2)
-        direction = np.array([0, 1])
+        direction = np.array([0, .5], dtype=float)
+        direction = np.array([0, .5], dtype=float)
         super().__init__(position=position, emoji=emoji, shape=shape, direction=direction)
 
     def move(self, **kwargs):

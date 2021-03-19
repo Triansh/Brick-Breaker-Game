@@ -281,7 +281,7 @@ class Game:
         util.position_cursor()
 
     def _detect_brick_collisions(self, ball):
-        _dir = ball.get_direction()
+        _dir = copy.copy(ball.get_direction())
         _bc = ball.get_center()
         _radius = ball.get_shape()  # minor axis(h) , major axis(w)
         _radius = [_radius[0] / 2, _radius[1] / 2]
@@ -317,6 +317,9 @@ class Game:
 
                 if hit_ufo:
                     self.__ufo.dec_life()
+                    if self.__ufo.get_lives() == 8 or self.__ufo.get_lives() == 4:
+                        self.__brick_wall.set_enable()
+                        self.__brick_wall.make_structure()
 
                 _final_dir = np.zeros((size, 2))
 
@@ -325,7 +328,7 @@ class Game:
                 for index, brick in enumerate(c_bricks):
                     _next_dir = brick.reflect_obj(_prev_pos, _dir)
                     _final_dir[index] = _next_dir
-                    self.dec_strength_of_brick(brick)
+                    self.dec_strength_of_brick(brick, _dir)
                 ball.set_direction(_final_dir[0])
                 return False
 
@@ -333,26 +336,27 @@ class Game:
             self.__ufo.dec_life()
 
         for brick in c_bricks:
-            self._destroy_and_check_for_power_up(brick)
+            self._destroy_and_check_for_power_up(brick, _dir)
 
         return False
 
-    def dec_strength_of_brick(self, brick):
+    def dec_strength_of_brick(self, brick, direction):
         brick.set_rainbow()
         brick.set_level(brick.get_level() - 1)
         if brick.get_level() == 0:
-            self._destroy_and_check_for_power_up(brick)
+            self._destroy_and_check_for_power_up(brick, direction)
 
-    def _destroy_and_check_for_power_up(self, brick):
+    def _destroy_and_check_for_power_up(self, brick, direction):
         if brick.__class__.__name__ == "UFOBrick":
             return
         _pos = brick.get_position()
         self.__score += config.SCORE_FACTOR * self.__brick_wall.destroy_brick(brick,
                                                                               self.__frames_count)
 
-        new_power_up = self.__power_up_handler.create_power_up(_pos)
-        if new_power_up is not None:
-            self.__power_ups.append(new_power_up)
+        if not self.__boss_mode:
+            new_power_up = self.__power_up_handler.create_power_up(_pos, direction)
+            if new_power_up is not None:
+                self.__power_ups.append(new_power_up)
 
     def change_stage(self):
         time.sleep(1)
@@ -380,7 +384,6 @@ class Game:
         if self.__boss_mode:
             self.__ufo.set_bombs(self._remove_objects_after_missing_paddle(self.__ufo.get_bombs()))
 
-        print(self.__ufo.get_lives())
         if ((not self.__boss_mode) and self.__brick_wall.get_count_bricks() == 0) \
                 or (self.__boss_mode and self.__ufo.get_lives() == 0):
             if self.change_stage():

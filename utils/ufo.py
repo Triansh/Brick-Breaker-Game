@@ -11,7 +11,7 @@ class UFO(BrickWall):
 
     def __init__(self):
         self.__bombs = []
-        self._health = HealthBar(config.UFO_POSITION - np.array([0, 1]))
+        self._health = HealthBar(config.UFO_POSITION - np.array([0, 1], dtype=float))
         self.__health_bar = ['']
         super().__init__(stage=config.STAGES)
 
@@ -25,7 +25,7 @@ class UFO(BrickWall):
     def _set_character(self, ch, x, y):
         _shape = (1, 2)
         if ch in ['A', 'F', 'C', 'G']:
-            _pos = np.array([x, y]) + self._position
+            _pos = np.array([x, y], dtype=float) + self._position
             emoji = '🛸'
             if ch == 'F':
                 emoji = '🛸'
@@ -47,7 +47,7 @@ class UFO(BrickWall):
     def get_health(self):
         return self._health
 
-    def _make_structure(self):
+    def make_structure(self):
         self._bricks = []
         y = 0
         for i in range(len(self._matrix)):
@@ -58,7 +58,7 @@ class UFO(BrickWall):
         return
 
     def shift_wall(self, val=1):
-        _pos = np.array([val, 0])
+        _pos = np.array([val, 0], dtype=float)
         self._position += _pos
         for brick in self._bricks:
             brick.add_position(_pos)

@@ -42,21 +42,4 @@ class Ball(MovingObject):
 
     def move(self, **kwargs):
         self._handle_wall_reflection()
-        dir = self.get_direction()
-        # dir = 2 * dir / np.sqrt(np.sum(dir ** 2))
-        self.add_position(dir * self.__sp_factor)
-
-    def _handle_wall_reflection(self):
-        """
-        This function accounts for all collisions of ball with walls
-        """
-        _x, _y = self.get_position()
-        _h, _w = self.get_shape()
-        _direction = self.get_direction()
-
-        if _y <= 0:
-            _direction[1] *= -1
-        if _x <= 0 or _x >= config.SCREEN_WIDTH - _w:
-            _direction[0] *= -1
-
-        self.set_direction(_direction)
+        self.add_position(self._direction * self.__sp_factor)

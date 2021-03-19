@@ -16,17 +16,21 @@ class BrickWall:
         matrix : list(String) : Design of brick wall
         """
         self._counter = self._time = 0
+        self.__enable = False
         self._stage = stage
         self._bricks = self.__next_explodes = []
         self._position = patterns.LAYOUTS[self._stage][1]
         self._matrix = patterns.LAYOUTS[self._stage][0]
-        self._make_structure()
+        self.make_structure()
+
+    def set_enable(self):
+        self.__enable = True
 
     def increment_stage(self):
         self._stage += 1
         self._position = patterns.LAYOUTS[self._stage][1]
         self._matrix = patterns.LAYOUTS[self._stage][0]
-        self._make_structure()
+        self.make_structure()
         self._time = 0
 
     def get_stage(self):
@@ -83,7 +87,7 @@ class BrickWall:
                 count += self._do_explosion(brick, frame)
         return count
 
-    def _make_structure(self):
+    def make_structure(self):
         """
         Function to construct the design of wall
         """
@@ -106,15 +110,20 @@ class BrickWall:
         elif ch == "S":
             x += 6
         else:
-            if ch in ['L', 'E']:
+            if ch in ['L', 'E', 'B']:
                 _shape = (2, 6)
-            _pos = np.array([x, y]) + self._position
+            _pos = np.array([x, y], dtype=float) + self._position
 
             if ch in ['E', 'P']:
                 new_brick = ExplosiveBrick(id=self._counter, position=_pos, shape=_shape)
+            elif ch == 'B':
+                new_brick = UnBreakableBrick(id=self._counter, position=_pos, shape=_shape)
             else:
+                if config.STAGES - 1 == self._stage and (not self.__enable) and ch == 'L':
+                    x += _shape[1]
+                    return x
 
-                if randrange(30) >= 2:
+                if randrange(50) >= 2:
                     new_brick = Brick(id=self._counter, position=_pos, shape=_shape,
                                       level=randrange(1, config.BRICK_TYPES + 1),
                                       rainbow=True if randrange(25) < 2 else False)
@@ -133,4 +142,4 @@ class BrickWall:
     def shift_wall(self, val=1):
         if self._time > config.TIME_ATTACK and (not config.STAGES - 1 == self._stage):
             for brick in self._bricks:
-                brick.add_position(np.array([0, val]))
+                brick.add_position(np.array([0, val], dtype=float))

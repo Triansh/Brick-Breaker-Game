@@ -40,7 +40,7 @@ class GameObject:
 
     def get_center(self):
         _h, _w = self._shape
-        return self._position + np.array([_w - 1, _h - 1]) / 2
+        return self._position + np.array([_w - 1, _h - 1], dtype=float) / 2
 
     def get_shape(self):
         return self._shape
@@ -91,6 +91,21 @@ class MovingObject(GameObject):
                                  -config.MAX_VELOCITY)
         self._direction[1] = max(min(self._direction[1], config.MAX_VELOCITY),
                                  -config.MAX_VELOCITY)
+
+    def _handle_wall_reflection(self):
+        """
+        This function accounts for all collisions of ball with walls
+        """
+        _x, _y = self._position
+        _h, _w = self._shape
+        _direction = self._direction
+
+        if _y <= 0:
+            _direction[1] *= -1
+        if _x <= 0 or _x >= config.SCREEN_WIDTH - _w:
+            _direction[0] *= -1
+
+        self.set_direction(_direction)
 
     def move(self, **kwargs):
         """
