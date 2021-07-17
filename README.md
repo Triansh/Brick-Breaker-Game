@@ -1,6 +1,14 @@
-# Brick-Break
+# Brick-Wrecker
 
-## Setup
+## Overview
+
+The game is inspired from the old classic brick breaker game similar
+to [this](https://www.youtube.com/watch?v=BXEk0IHzHOM). The player will be using a paddle with a
+bouncing ball to smash a wall of bricks and make high scores! The objective of the game is to break
+all the bricks as fast as possible and beat the highest score! You lose a life when the ball touches
+the ground below the paddle.
+
+### Installation
 
 Ensure that you have python3.6+ and pip.
 
@@ -21,18 +29,12 @@ Run the following to play the game. Also ensure that you play the game in full s
 terminal.
 
 ```shell
-$ python main.py
+$ python src/main.py
 ```
 
-## Gameplay
 
-The game is inspired from the old classic brick breaker game similar
-to [this](https://www.youtube.com/watch?v=BXEk0IHzHOM). The player will be using a paddle with a
-bouncing ball to smash a wall of bricks and make high scores! The objective of the game is to break
-all the bricks as fast as possible and beat the highest score! You lose a life when the ball touches
-the ground below the paddle.
 
-## Controls
+### Controls
 
 - <kbd>A</kbd>: Move paddle left
 - <kbd>D</kbd>: Move paddle right
@@ -40,7 +42,7 @@ the ground below the paddle.
 - <kbd>SPACE</kbd>: Release ball
 - <kbd>Q</kbd>: Quit Game
 
-## Classes
+### Classes
 
 Refer to the diagrams below to view the class structure
 
