@@ -8,6 +8,8 @@ bouncing ball to smash a wall of bricks and make high scores! The objective of t
 all the bricks as fast as possible and beat the highest score! You lose a life when the ball touches
 the ground below the paddle.
 
+https://user-images.githubusercontent.com/56212901/126034898-8cc67425-f96a-479c-8bde-193207d5591e.mp4
+
 ### Installation
 
 Ensure that you have python3.6+ and pip.
